@@ -41,7 +41,7 @@ const useAudioAmbient = () => {
       // Slow LFO to sweep filter frequency
       const lfo = ctx.createOscillator();
       const lfoGain = ctx.createGain();
-      lfo.frequency.value = 0.08; 
+      lfo.frequency.value = 0.08;
       lfoGain.gain.value = 40;
 
       lfo.connect(lfoGain);
@@ -125,13 +125,13 @@ const useAudioAmbient = () => {
   useEffect(() => {
     return () => {
       if (droneNodeRef.current) {
-        try { droneNodeRef.current.osc1.stop(); } catch (e) {}
-        try { droneNodeRef.current.osc2.stop(); } catch (e) {}
-        try { droneNodeRef.current.lfo.stop(); } catch (e) {}
+        try { droneNodeRef.current.osc1.stop(); } catch (e) { }
+        try { droneNodeRef.current.osc2.stop(); } catch (e) { }
+        try { droneNodeRef.current.lfo.stop(); } catch (e) { }
       }
       if (windNodeRef.current) {
-        try { windNodeRef.current.whiteNoise.stop(); } catch (e) {}
-        try { windNodeRef.current.windLfo.stop(); } catch (e) {}
+        try { windNodeRef.current.whiteNoise.stop(); } catch (e) { }
+        try { windNodeRef.current.windLfo.stop(); } catch (e) { }
       }
       if (audioCtxRef.current) {
         audioCtxRef.current.close();
@@ -146,135 +146,135 @@ const useAudioAmbient = () => {
 // EXHIBITION STORY DATA & STRUCTURAL DETAILS
 // ═══════════════════════════════════════════════════
 const letterData = [
-  { 
-    key: "H", 
-    theme: "Hope • Humanity • History", 
-    color: "#ff7a00", 
-    glow: "#ffaa44", 
-    bgHex: 0xff7a00, 
-    symbol: "The Gateway", 
-    desc: "Rooted in a century of moral reform and spiritual empowerment. We traverse the historical pathways of knowledge, celebrating a legacy that shaped the human landscape of Malabar.", 
-    badges: ["100 Years of Samastha", "50 Years of Kanthapuram Leadership", "Legacy Seminar"] 
+  {
+    key: "H",
+    theme: "Hope • Humanity • History",
+    color: "#ff7a00",
+    glow: "#ffaa44",
+    bgHex: 0xff7a00,
+    symbol: "The Gateway",
+    desc: "Rooted in a century of moral reform and spiritual empowerment. We traverse the historical pathways of knowledge, celebrating a legacy that shaped the human landscape of Malabar.",
+    badges: ["100 Years of Samastha", "50 Years of Kanthapuram Leadership", "Legacy Seminar"]
   },
-  { 
-    key: "I", 
-    theme: "Influence", 
-    color: "#0072ff", 
-    glow: "#33bbff", 
-    bgHex: 0x0055dd, 
-    symbol: "The Pen", 
-    desc: "Voices that resonate across generations. Exploring the power of literature, digital audio, and media to build healthy social narratives and speak truth to power.", 
-    badges: ["Sahithyotsav Podcast", "Student Media Meet", "Cultural Talk Circle"] 
+  {
+    key: "I",
+    theme: "Influence",
+    color: "#0072ff",
+    glow: "#33bbff",
+    bgHex: 0x0055dd,
+    symbol: "The Pen",
+    desc: "Voices that resonate across generations. Exploring the power of literature, digital audio, and media to build healthy social narratives and speak truth to power.",
+    badges: ["Sahithyotsav Podcast", "Student Media Meet", "Cultural Talk Circle"]
   },
-  { 
-    key: "T", 
-    theme: "Talent", 
-    color: "#00aa44", 
-    glow: "#44ff88", 
-    bgHex: 0x00aa44, 
-    symbol: "Career Compass", 
-    desc: "Where passion meets purpose. Navigating paths of growth, mapping career compasses, and channeling artistic expression to address contemporary global issues.", 
-    badges: ["Career Navigation Hub", "Art Exhibition", "Innovative Tech Expo"] 
+  {
+    key: "T",
+    theme: "Talent",
+    color: "#00aa44",
+    glow: "#44ff88",
+    bgHex: 0x00aa44,
+    symbol: "Career Compass",
+    desc: "Where passion meets purpose. Navigating paths of growth, mapping career compasses, and channeling artistic expression to address contemporary global issues.",
+    badges: ["Career Navigation Hub", "Art Exhibition", "Innovative Tech Expo"]
   },
-  { 
-    key: "S", 
-    theme: "Signature", 
-    color: "#ff44aa", 
-    glow: "#ff88dd", 
-    bgHex: 0xff44aa, 
-    symbol: "The Ripple", 
-    desc: "Every individual is an original manuscript. Leaving an indelible mark through creative writing, ink drawings, and calligraphic compositions that reflect the soul.", 
-    badges: ["Calligraphy Contest", "Poetry Slam", "Short Story Masterclass"] 
+  {
+    key: "S",
+    theme: "Signature",
+    color: "#ff44aa",
+    glow: "#ff88dd",
+    bgHex: 0xff44aa,
+    symbol: "The Ripple",
+    desc: "Every individual is an original manuscript. Leaving an indelible mark through creative writing, ink drawings, and calligraphic compositions that reflect the soul.",
+    badges: ["Calligraphy Contest", "Poetry Slam", "Short Story Masterclass"]
   },
-  { 
-    key: "D", 
-    theme: "Discovery", 
-    color: "#8800ff", 
-    glow: "#cc88ff", 
-    bgHex: 0x8800ff, 
-    symbol: "The Window", 
-    desc: "Unlocking portals of wonder. Opening windows to scientific inquiry, classical wisdom, and hidden chambers of knowledge that traditional pathways ignore.", 
-    badges: ["Book Fair & Reading Corner", "Science & Faith Seminar", "Young Researchers Forum"] 
+  {
+    key: "D",
+    theme: "Discovery",
+    color: "#8800ff",
+    glow: "#cc88ff",
+    bgHex: 0x8800ff,
+    symbol: "The Window",
+    desc: "Unlocking portals of wonder. Opening windows to scientific inquiry, classical wisdom, and hidden chambers of knowledge that traditional pathways ignore.",
+    badges: ["Book Fair & Reading Corner", "Science & Faith Seminar", "Young Researchers Forum"]
   },
-  { 
-    key: "I2", 
-    theme: "Inspire", 
-    color: "#ff4477", 
-    glow: "#ff88aa", 
-    bgHex: 0xff4477, 
-    symbol: "The Voice", 
-    desc: "Igniting a flame in others. Elevating the community's voice through speech, theatrical drama, and public debate under the cinematic spotlight of leadership.", 
-    badges: ["Elocution Grand Prix", "Sufi Devotional Music", "Youth Parliament"] 
+  {
+    key: "I",
+    theme: "Inspire",
+    color: "#ff4477",
+    glow: "#ff88aa",
+    bgHex: 0xff4477,
+    symbol: "The Voice",
+    desc: "Igniting a flame in others. Elevating the community's voice through speech, theatrical drama, and public debate under the cinematic spotlight of leadership.",
+    badges: ["Elocution Grand Prix", "Sufi Devotional Music", "Youth Parliament"]
   },
-  { 
-    key: "F", 
-    theme: "Faith", 
-    color: "#11aa33", 
-    glow: "#66ff88", 
-    bgHex: 0x11aa33, 
-    symbol: "The Growing Leaf", 
-    desc: "Spiritual roots grounding creative growth. Integrating Islamic aesthetic heritage, calligraphy, and Ghibli-esque harmony with nature to experience peace.", 
-    badges: ["Fiqh Seminars", "Islamic Arts & Calligraphy", "Echoes of Sufism"] 
+  {
+    key: "F",
+    theme: "Faith",
+    color: "#11aa33",
+    glow: "#66ff88",
+    bgHex: 0x11aa33,
+    symbol: "The Growing Leaf",
+    desc: "Spiritual roots grounding creative growth. Integrating Islamic aesthetic heritage, calligraphy, and Ghibli-esque harmony with nature to experience peace.",
+    badges: ["Fiqh Seminars", "Islamic Arts & Calligraphy", "Echoes of Sufism"]
   },
-  { 
-    key: "F2", 
-    theme: "Forward", 
-    color: "#ffcc00", 
-    glow: "#ffee66", 
-    bgHex: 0xffcc00, 
-    symbol: "The Turning Point", 
-    desc: "The staircase of progress. Ascending step by step towards educational excellence, academic accomplishments, and community leadership awards.", 
-    badges: ["Academic Excellence Awards", "Leadership Bootcamp", "Empowerment Summit"] 
+  {
+    key: "F",
+    theme: "Forward",
+    color: "#ffcc00",
+    glow: "#ffee66",
+    bgHex: 0xffcc00,
+    symbol: "The Turning Point",
+    desc: "The staircase of progress. Ascending step by step towards educational excellence, academic accomplishments, and community leadership awards.",
+    badges: ["Academic Excellence Awards", "Leadership Bootcamp", "Empowerment Summit"]
   },
-  { 
-    key: "E", 
-    theme: "Echo Of Ideas", 
-    color: "#cc1111", 
-    glow: "#ff4444", 
-    bgHex: 0xcc1111, 
-    symbol: "The Waves", 
-    desc: "A resonance of intellect. Creating waves of thoughts, brainstorming social initiatives, and nurturing an entrepreneurial fire that hits different.", 
-    badges: ["Idea Pitch Deck", "Social Entrepreneurship Panel", "Student Innovation Lab"] 
+  {
+    key: "E",
+    theme: "Echo Of Ideas",
+    color: "#cc1111",
+    glow: "#ff4444",
+    bgHex: 0xcc1111,
+    symbol: "The Waves",
+    desc: "A resonance of intellect. Creating waves of thoughts, brainstorming social initiatives, and nurturing an entrepreneurial fire that hits different.",
+    badges: ["Idea Pitch Deck", "Social Entrepreneurship Panel", "Student Innovation Lab"]
   },
-  { 
-    key: "R", 
-    theme: "Reflection", 
-    color: "#3300aa", 
-    glow: "#6644ff", 
-    bgHex: 0x3300aa, 
-    symbol: "The Mirror", 
-    desc: "Contemplating the depths. Mirroring our past to design our future. A space of quiet contemplation, literary evaluation, and self-discovery.", 
-    badges: ["Literary Review Circle", "Mindfulness Retreat", "Critique Desk"] 
+  {
+    key: "R",
+    theme: "Reflection",
+    color: "#3300aa",
+    glow: "#6644ff",
+    bgHex: 0x3300aa,
+    symbol: "The Mirror",
+    desc: "Contemplating the depths. Mirroring our past to design our future. A space of quiet contemplation, literary evaluation, and self-discovery.",
+    badges: ["Literary Review Circle", "Mindfulness Retreat", "Critique Desk"]
   },
-  { 
-    key: "E2", 
-    theme: "Express Your Opinion", 
-    color: "#ff3388", 
-    glow: "#ff77bb", 
-    bgHex: 0xff3388, 
-    symbol: "The Conversation", 
-    desc: "Your voice is your power. Open discussion boards, interactive forums, and chat spaces designed to cultivate critical thinking and civil discourse.", 
-    badges: ["District Debate Championship", "Media Panel Discussion", "Creative Writers Desk"] 
+  {
+    key: "E",
+    theme: "Express Your Opinion",
+    color: "#ff3388",
+    glow: "#ff77bb",
+    bgHex: 0xff3388,
+    symbol: "The Conversation",
+    desc: "Your voice is your power. Open discussion boards, interactive forums, and chat spaces designed to cultivate critical thinking and civil discourse.",
+    badges: ["District Debate Championship", "Media Panel Discussion", "Creative Writers Desk"]
   },
-  { 
-    key: "N", 
-    theme: "Nurture New Ideas", 
-    color: "#00cc44", 
-    glow: "#55ff99", 
-    bgHex: 0x00cc44, 
-    symbol: "The Growing Plant", 
-    desc: "Cultivating the seeds of tomorrow. Providing resources, mentoring, and support to young minds to grow their organic concepts into social realities.", 
-    badges: ["Start-Up Mentorship", "Eco-Green Initiatives", "Young Scholars Fellowship"] 
+  {
+    key: "N",
+    theme: "Nurture New Ideas",
+    color: "#00cc44",
+    glow: "#55ff99",
+    bgHex: 0x00cc44,
+    symbol: "The Growing Plant",
+    desc: "Cultivating the seeds of tomorrow. Providing resources, mentoring, and support to young minds to grow their organic concepts into social realities.",
+    badges: ["Start-Up Mentorship", "Eco-Green Initiatives", "Young Scholars Fellowship"]
   },
-  { 
-    key: "T2", 
-    theme: "Timeless", 
-    color: "#ffaa00", 
-    glow: "#ffdd44", 
-    bgHex: 0xffaa00, 
-    symbol: "The Milestone", 
-    desc: "The synthesis of our journey. All letters assemble under the golden archway of Sahithyotsav. A testament that different voices, when united, hit different.", 
-    badges: ["Sahithyotsav Finale Grand Arch", "Awards Ceremony", "Cultural Harmony Night"] 
+  {
+    key: "T",
+    theme: "Timeless",
+    color: "#ffaa00",
+    glow: "#ffdd44",
+    bgHex: 0xffaa00,
+    symbol: "The Milestone",
+    desc: "The synthesis of our journey. All letters assemble under the golden archway of Sahithyotsav. A testament that different voices, when united, hit different.",
+    badges: ["Sahithyotsav Finale Grand Arch", "Awards Ceremony", "Cultural Harmony Night"]
   }
 ];
 
@@ -323,14 +323,14 @@ export default function HitsDifferent() {
         { key: "T", url: "/images/t.svg" },
         { key: "S", url: "/images/s.svg" },
         { key: "D", url: "/images/d.svg" },
-        { key: "I2", url: "/images/ii.svg" },
+        { key: "I", url: "/images/ii.svg" },
         { key: "F", url: "/images/f.svg" },
-        { key: "F2", url: "/images/ff.svg" },
+        { key: "F", url: "/images/ff.svg" },
         { key: "E", url: "/images/e.svg" },
         { key: "R", url: "/images/r.svg" },
-        { key: "E2", url: "/images/ee.svg" },
+        { key: "E", url: "/images/ee.svg" },
         { key: "N", url: "/images/n.svg" },
-        { key: "T2", url: "/images/tt.svg" }
+        { key: "T", url: "/images/tt.svg" }
       ];
 
       const loadedData = {};
@@ -405,28 +405,28 @@ export default function HitsDifferent() {
       const startAngle = Math.PI * 0.94;
       const endAngle = Math.PI * 0.06;
       const angle = startAngle - (index / (total - 1)) * (startAngle - endAngle);
-      
+
       const x = archCenter.x + Math.cos(angle) * currentRadius;
       const z = currentCenterZ - Math.sin(angle) * currentRadius * 0.65;
       const y = -0.9; // bottom of 5.2 height letter stands on floor Y = -3.5
-      
+
       const normal = new THREE.Vector3(0, 1, 0); // letters lift straight UP
-      
-      return { 
-        pos: new THREE.Vector3(x, y, z), 
-        normal 
+
+      return {
+        pos: new THREE.Vector3(x, y, z),
+        normal
       };
     };
 
     const recreateArchLine = () => {
       if (archLineMesh) scene.remove(archLineMesh);
-      
+
       const curvePoints = [];
       const divisions = 80;
       for (let i = 0; i <= divisions; i++) {
         curvePoints.push(getArchPosition((i / divisions) * 12).pos);
       }
-      
+
       const archCurve = new THREE.CatmullRomCurve3(curvePoints);
       const archGeom = new THREE.TubeGeometry(archCurve, 80, 0.04, 6, false);
       const archMat = new THREE.MeshStandardMaterial({
@@ -436,7 +436,7 @@ export default function HitsDifferent() {
         transparent: true,
         opacity: 0.6
       });
-      
+
       archLineMesh = new THREE.Mesh(archGeom, archMat);
       scene.add(archLineMesh);
     };
@@ -450,7 +450,7 @@ export default function HitsDifferent() {
       scene.fog = new THREE.FogExp2(0x050706, 0.003);
 
       camera = new THREE.PerspectiveCamera(50, width / height, 0.1, 1000);
-      
+
       renderer = new THREE.WebGLRenderer({
         canvas: canvasRef.current,
         antialias: true,
@@ -506,7 +506,7 @@ export default function HitsDifferent() {
           const divisions = 100;
           const currentRadius = 22;
           const currentCenterZ = -12;
-          
+
           for (let i = 0; i <= divisions; i++) {
             const angle = Math.PI * 0.96 - (i / divisions) * (Math.PI * 0.92);
             const x = archCenter.x + Math.cos(angle) * (currentRadius + rOffset);
@@ -576,7 +576,7 @@ export default function HitsDifferent() {
               const mesh = new THREE.Mesh(geometry, material);
               mesh.castShadow = true;
               mesh.receiveShadow = true;
-              
+
               // Parallax depth layered thickness
               mesh.position.z = (pathIdx - paths.length / 2) * 0.5;
               letterGroup.add(mesh);
@@ -610,7 +610,7 @@ export default function HitsDifferent() {
         }
 
         // Volumetric cone lights removed to prevent camera clipping and triangle artifacting
-        
+
         // Small glowing base under each letter
         const baseGeom = new THREE.CylinderGeometry(1.2, 1.2, 0.1, 16);
         const baseMat = new THREE.MeshStandardMaterial({
@@ -665,7 +665,7 @@ export default function HitsDifferent() {
         // ═══════════════════════════════════════════════════
         // SUB-INSTALLATIONS (Scenery linked to specific letters)
         // ═══════════════════════════════════════════════════
-        
+
         // H: Gateway
         if (data.key === "H") {
           const arch = new THREE.Group();
@@ -801,7 +801,7 @@ export default function HitsDifferent() {
           const bExtrude = { depth: 0.15, bevelEnabled: true, bevelSegments: 3, bevelSize: 0.04, bevelThickness: 0.04 };
           const bGeom = new THREE.ExtrudeGeometry(bubbleShape, bExtrude);
           const bMat = new THREE.MeshStandardMaterial({ color: 0xff77bb, roughness: 0.3 });
-          
+
           for (let b = 0; b < 3; b++) {
             const bub = new THREE.Mesh(bGeom, bMat);
             bub.position.set(
@@ -854,10 +854,10 @@ export default function HitsDifferent() {
       ];
 
       for (let i = 0; i < pCount * 3; i += 3) {
-        pPosArray[i] = (Math.random() - 0.5) * 60;    
-        pPosArray[i + 1] = (Math.random() - 0.5) * 35;  
-        pPosArray[i + 2] = -22 + (Math.random() - 0.5) * 15; 
-        
+        pPosArray[i] = (Math.random() - 0.5) * 60;
+        pPosArray[i + 1] = (Math.random() - 0.5) * 35;
+        pPosArray[i + 2] = -22 + (Math.random() - 0.5) * 15;
+
         const col = colorPalette[Math.floor(Math.random() * colorPalette.length)];
         pColArray[i] = col.r;
         pColArray[i + 1] = col.g;
@@ -928,11 +928,11 @@ export default function HitsDifferent() {
         currentScroll.current += (targetScroll.current - currentScroll.current) * 0.042;
         const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
         const p = scrollHeight > 0 ? Math.min(Math.max(currentScroll.current / scrollHeight, 0), 1) : 0;
-        
+
         // Calculate continuous active index factor
         const targetIndex = p * 12;
         const currentActive = Math.min(Math.max(Math.round(targetIndex), 0), 12);
-        
+
         // 2. React Active Card overlay state trigger
         if (lastActiveIndex !== currentActive) {
           lastActiveIndex = currentActive;
@@ -947,7 +947,7 @@ export default function HitsDifferent() {
         if (activeItem) {
           const itemPos = activeItem.userData.originalPos.clone();
           const isMobile = window.innerWidth < 768;
-          
+
           if (isMobile) {
             targetCamPos.set(itemPos.x * 0.7, 2.5, itemPos.z + 15);
             targetLookAt.set(itemPos.x, itemPos.y + 1.2, itemPos.z);
@@ -965,7 +965,7 @@ export default function HitsDifferent() {
         letterGroups.forEach((letterGroup, i) => {
           const distance = Math.abs(i - targetIndex);
           const factor = Math.max(0, 1.0 - distance);
-          
+
           // A. Scale animation
           const baseScale = letterGroup.userData.baseScale || 0.015;
           const targetScale = baseScale * (1.0 + factor * 0.22);
@@ -979,19 +979,19 @@ export default function HitsDifferent() {
           const liftDist = factor * 2.8;
           const liftVector = letterGroup.userData.normal.clone().multiplyScalar(liftDist);
           const destPos = letterGroup.userData.originalPos.clone().add(liftVector);
-          
+
           // Ambient float swaying
           const fTime = elapsedTime + letterGroup.userData.floatOffset;
           destPos.y += Math.sin(fTime * 1.4) * 0.18;
           destPos.x += Math.cos(fTime * 0.8) * 0.08;
-          
+
           letterGroup.position.lerp(destPos, 0.08);
 
           // C. Light intensity glow
           letterGroup.userData.pointLight.intensity = 3.0 + factor * 14.0;
 
           // D. neighbor fading (opacity)
-          const opacity = 0.45 + (1.0 - Math.min(distance, 2) / 2) * 0.55; 
+          const opacity = 0.45 + (1.0 - Math.min(distance, 2) / 2) * 0.55;
           letterGroup.userData.materials.forEach(mat => {
             mat.opacity = opacity;
           });
@@ -1001,9 +1001,9 @@ export default function HitsDifferent() {
         if (activeItem && cardRef.current && svgConnectorRef.current && connectorDotRef.current) {
           const tempV = new THREE.Vector3();
           activeItem.getWorldPosition(tempV);
-          
+
           // Connect to the top of the letter (offset upwards)
-          tempV.y += 2.6; 
+          tempV.y += 2.6;
           tempV.project(camera);
 
           const screenX = (tempV.x * 0.5 + 0.5) * window.innerWidth;
@@ -1019,10 +1019,10 @@ export default function HitsDifferent() {
 
             // Draw glowing connector SVG path
             svgConnectorRef.current.setAttribute("d", `M ${startX} ${startY} L ${screenX} ${screenY}`);
-            
+
             const activeColor = letterData[currentActive].color;
             svgConnectorRef.current.setAttribute("stroke", activeColor);
-            
+
             // Position connection intersection dot
             connectorDotRef.current.setAttribute("cx", screenX);
             connectorDotRef.current.setAttribute("cy", screenY);
@@ -1044,7 +1044,7 @@ export default function HitsDifferent() {
             } else {
               const tempV = new THREE.Vector3();
               letterGroup.getWorldPosition(tempV);
-              
+
               tempV.y += 3.0; // project above the letter
               tempV.project(camera);
 
@@ -1115,7 +1115,7 @@ export default function HitsDifferent() {
           const flap = Math.sin(elapsedTime * 8 + bird.userData.offset) * 0.6;
           bird.userData.lw.rotation.z = flap;
           bird.userData.rw.rotation.z = -flap;
-          
+
           bird.position.z += bird.userData.speed;
           if (bird.position.z > 0) {
             bird.position.z = -25;
@@ -1137,9 +1137,9 @@ export default function HitsDifferent() {
         if (letterData[currentActive]) {
           const activeItemData = letterData[currentActive];
           const col = new THREE.Color(activeItemData.color);
-          targetBg.copy(col).multiplyScalar(0.035); 
-          targetFog.copy(col).multiplyScalar(0.025); 
-          targetFogDensity = 0.0055; 
+          targetBg.copy(col).multiplyScalar(0.035);
+          targetFog.copy(col).multiplyScalar(0.025);
+          targetFogDensity = 0.0055;
         }
 
         scene.background.lerp(targetBg, 0.04);
@@ -1171,23 +1171,23 @@ export default function HitsDifferent() {
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
       renderer.setSize(w, h);
-      
+
       // Update locations and rotations of the letters dynamically on resize
       letterGroups.forEach((letterGroup, idx) => {
         const archData = getArchPosition(idx);
         letterGroup.userData.originalPos.copy(archData.pos);
         letterGroup.userData.normal.copy(archData.normal);
-        
+
         // Angle letters slightly to face the center of the arc (camera direction)
         const currentRadius = w < 768 ? 12 : 22;
         const startAngle = Math.PI * 0.94;
         const endAngle = Math.PI * 0.06;
         const angle = startAngle - (idx / 12) * (startAngle - endAngle);
         letterGroup.rotation.y = -Math.cos(angle) * 0.28;
-        
+
         letterGroup.userData.originalRot.copy(letterGroup.rotation);
       });
-      
+
       recreateArchLine();
     };
     window.addEventListener("resize", handleResize);
@@ -1209,7 +1209,7 @@ export default function HitsDifferent() {
          ═══════════════════════════════════════════════════ */}
       <AnimatePresence>
         {!loaded && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 1 }}
             exit={{ opacity: 0, transition: { duration: 1.4 } }}
             className="fixed inset-0 z-[100] bg-[#050706] flex flex-col items-center justify-center p-6 border-4 border-double border-[#A97843]/30"
@@ -1220,14 +1220,14 @@ export default function HitsDifferent() {
             <div className="absolute bottom-8 left-8 w-16 h-16 border-b-2 border-l-2 border-[#A97843]/20"></div>
             <div className="absolute bottom-8 right-8 w-16 h-16 border-b-2 border-r-2 border-[#A97843]/20"></div>
 
-            <motion.div 
+            <motion.div
               initial={{ scale: 0.93, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ duration: 1.2 }}
               className="text-center max-w-xl space-y-8 z-10"
             >
               <Compass className="w-16 h-16 text-[#A97843] mx-auto animate-spin-slow mb-4 opacity-75" />
-              
+
               <div className="space-y-3">
                 <span className="text-xs uppercase tracking-[0.4em] text-[#A97843] font-semibold block">
                   SSF Kozhikode South District
@@ -1235,25 +1235,18 @@ export default function HitsDifferent() {
                 <h1 className="text-5xl md:text-6xl font-bold tracking-wider text-[#F6F0E4] font-heading py-2">
                   HITS DIFFERENT
                 </h1>
-                <p className="text-xs italic text-[#F6F0E4]/60 font-serif">
-                  28th Sahityotsav Immersive Digital Exhibition
-                </p>
               </div>
 
               <div className="divider-vintage-ornamental text-[#A97843]/40"></div>
 
-              <div className="space-y-4 font-serif italic text-sm text-[#F6F0E4]/80 px-4 leading-relaxed">
-                <p>"Two roads diverged in a wood, and I—</p>
-                <p>I took the one less traveled by,</p>
-                <p>And that has made all the difference."</p>
-              </div>
+      
 
               {/* Progress and Enter controls */}
               <div className="flex flex-col items-center justify-center pt-8 space-y-4">
                 {loadingProgress < 100 ? (
                   <div className="w-64 space-y-2">
                     <div className="h-1 bg-[#1A1F1C] w-full rounded-full overflow-hidden">
-                      <div 
+                      <div
                         className="h-full bg-[#A97843] transition-all duration-300"
                         style={{ width: `${loadingProgress}%` }}
                       ></div>
@@ -1263,30 +1256,23 @@ export default function HitsDifferent() {
                     </span>
                   </div>
                 ) : (
-                  <motion.div 
+                  <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     className="flex flex-col sm:flex-row gap-4 justify-center items-center"
                   >
-                    <button
-                      onClick={() => {
-                        setLoaderAudioChoice(true);
-                        setLoaded(true);
-                        startAudio();
-                      }}
-                      className="px-8 py-3.5 bg-[#1D3B2A] border border-[#A97843]/50 text-[#F6F0E4] font-heading font-bold rounded-lg transition-all shadow-lg hover:bg-[#A97843] hover:text-[#0b0e0c] w-64 flex items-center justify-center gap-2 group text-sm"
-                    >
-                      <Volume2 size={16} /> Enter with soundscape
-                    </button>
-                    <button
-                      onClick={() => {
-                        setLoaderAudioChoice(false);
-                        setLoaded(true);
-                      }}
-                      className="px-8 py-3.5 bg-transparent border border-[#F6F0E4]/30 text-[#F6F0E4]/80 font-heading rounded-lg hover:border-[#F6F0E4]/60 transition-all w-64 text-sm"
-                    >
-                      Enter silently
-                    </button>
+<button
+  onClick={() => {
+    setLoaderAudioChoice(true);
+    setLoaded(true);
+    startAudio();
+  }}
+  className="px-8 py-3.5 bg-transparent border border-[#F6F0E4]/30 text-[#F6F0E4]/80 font-heading rounded-lg hover:border-[#F6F0E4]/60 transition-all w-64 text-sm flex items-center justify-center gap-2"
+>
+  <Volume2 size={16} />
+  Enter with  Sound
+</button>
+             
                   </motion.div>
                 )}
               </div>
@@ -1327,16 +1313,16 @@ export default function HitsDifferent() {
              2D GLOWING CONNECTOR LINES (SVG Canvas)
              ═══════════════════════════════════════════════════ */}
           <svg className="fixed inset-0 pointer-events-none z-20 w-full h-full">
-            <path 
-              ref={svgConnectorRef} 
-              fill="none" 
-              strokeWidth="2.5" 
-              strokeDasharray="5 5" 
+            <path
+              ref={svgConnectorRef}
+              fill="none"
+              strokeWidth="2.5"
+              strokeDasharray="5 5"
               className="transition-all duration-300 filter drop-shadow-[0_0_8px_rgba(255,255,255,0.4)]"
             />
-            <circle 
-              ref={connectorDotRef} 
-              r="6.5" 
+            <circle
+              ref={connectorDotRef}
+              r="6.5"
               className="animate-pulse filter drop-shadow-[0_0_8px_rgba(255,255,255,0.85)]"
             />
           </svg>
@@ -1359,7 +1345,7 @@ export default function HitsDifferent() {
                 transform: "translate(-50%, -100%) translate3d(0, 0, 0) scale(0.6)"
               }}
             >
-              <div 
+              <div
                 className="bg-[#050706]/80 border p-4 rounded-xl shadow-lg backdrop-blur-sm relative"
                 style={{
                   borderColor: `${data.color}35`,
@@ -1374,7 +1360,7 @@ export default function HitsDifferent() {
                   {data.symbol}
                 </div>
                 <div className="flex items-baseline gap-2 mb-1">
-                  <span 
+                  <span
                     className="text-xl font-black font-heading tracking-tighter"
                     style={{ color: data.color }}
                   >
@@ -1394,10 +1380,10 @@ export default function HitsDifferent() {
           {/* ═══════════════════════════════════════════════════
              PROJECTED FLOATING EDITORIAL CARD (FIXED TOP-CENTER)
              ═══════════════════════════════════════════════════ */}
-          <div 
-            ref={cardRef} 
+          <div
+            ref={cardRef}
             className="fixed top-24 left-1/2 -translate-x-1/2 z-30 pointer-events-auto transition-opacity duration-300 w-[500px] max-w-[90vw]"
-            style={{ 
+            style={{
               willChange: "opacity"
             }}
           >
@@ -1423,9 +1409,9 @@ export default function HitsDifferent() {
                   </div>
 
                   <div className="flex items-baseline gap-4 mb-4">
-                    <h2 
-                      className="text-6xl font-black font-heading tracking-tighter" 
-                      style={{ 
+                    <h2
+                      className="text-6xl font-black font-heading tracking-tighter"
+                      style={{
                         color: letterData[activeIndex].color,
                         textShadow: `0 0 20px ${letterData[activeIndex].glow}44`
                       }}
@@ -1459,7 +1445,7 @@ export default function HitsDifferent() {
           {/* Scroll Indicator HUD */}
           <div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-40 flex flex-col items-center gap-2 pointer-events-none select-none">
             <div className="w-6 h-10 border-2 border-[#A97843]/60 rounded-full flex justify-center p-1.5 relative">
-              <motion.div 
+              <motion.div
                 animate={{ y: [0, 8, 0] }}
                 transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
                 className="w-1 h-2 bg-[#A97843] rounded-full"
@@ -1488,15 +1474,14 @@ export default function HitsDifferent() {
                   <span className="absolute right-9 text-[10px] font-heading font-bold uppercase tracking-wider text-[#F6F0E4] bg-[#050706] border border-[#A97843]/30 px-2 py-1 rounded shadow-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
                     {data.key} - {data.theme}
                   </span>
-                  
+
                   <div
-                    className={`rounded-full transition-all duration-300 flex items-center justify-center font-heading text-[8px] font-black ${
-                      isActive 
-                        ? "h-5.5 w-5.5 bg-[#A97843] text-[#050706]" 
-                        : isPast 
-                          ? "h-2 w-2 bg-[#A97843]/55" 
+                    className={`rounded-full transition-all duration-300 flex items-center justify-center font-heading text-[8px] font-black ${isActive
+                        ? "h-5.5 w-5.5 bg-[#A97843] text-[#050706]"
+                        : isPast
+                          ? "h-2 w-2 bg-[#A97843]/55"
                           : "h-2 w-2 bg-[#F6F0E4]/20 hover:bg-[#F6F0E4]/50"
-                    }`}
+                      }`}
                   >
                     {isActive && data.key[0]}
                   </div>
