@@ -22,13 +22,54 @@ import toast, { Toaster } from "react-hot-toast";
 import { AuthContext } from "../context/AuthContext";
 import { useContext, useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { getResultCount } from "../api/apiCall";
+import { getResultCount, changePassword } from "../api/apiCall";
 
 function AdminDashboard() {
   const navigate = useNavigate();
   const [viewCount, setViewCount] = useState(0);
 
   const { user, currentFestival, logout } = useContext(AuthContext);
+
+  const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
+  const [oldPassword, setOldPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [changing, setChanging] = useState(false);
+
+  const handlePasswordChangeSubmit = async (e) => {
+    e.preventDefault();
+    if (!oldPassword || !newPassword || !confirmPassword) {
+      toast.error("Please fill in all password fields.");
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      toast.error("New passwords do not match.");
+      return;
+    }
+    if (newPassword.length < 6) {
+      toast.error("New password must be at least 6 characters long.");
+      return;
+    }
+
+    setChanging(true);
+    try {
+      const response = await changePassword(oldPassword, newPassword);
+      if (response.success) {
+        toast.success("Password changed successfully!");
+        setIsChangePasswordOpen(false);
+        setOldPassword("");
+        setNewPassword("");
+        setConfirmPassword("");
+      } else {
+        toast.error(response.message || "Failed to change password.");
+      }
+    } catch (error) {
+      console.error("Change password submission error:", error);
+      toast.error(error.response?.data?.message || "Failed to change password. Please verify current password.");
+    } finally {
+      setChanging(false);
+    }
+  };
 
   useEffect(() => {
     async function fetchCount() {
@@ -160,6 +201,12 @@ function AdminDashboard() {
             Festival Admin Dashboard
           </h2>
           <p className="text-gray-400 text-sm">Welcome, <span className="font-semibold text-gray-200">{user.username}</span>. Select a module to manage your portal.</p>
+          <button
+            onClick={() => setIsChangePasswordOpen(true)}
+            className="mt-4 px-4 py-2 bg-indigo-600 hover:bg-indigo-750 text-white rounded-xl text-xs font-bold uppercase tracking-wider transition shadow-md inline-flex items-center gap-2"
+          >
+            🔒 Change Password
+          </button>
         </motion.div>
 
         {/* Grid Cards */}
@@ -280,6 +327,98 @@ function AdminDashboard() {
           </motion.div>
         </motion.div>
       </div>
+
+      {/* Change Password Modal */}
+      {isChangePasswordOpen && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-gray-800 border border-gray-700 w-full max-w-md rounded-3xl p-6 md:p-8 shadow-2xl relative"
+          >
+            {/* Close Button */}
+            <button
+              onClick={() => {
+                setIsChangePasswordOpen(false);
+                setOldPassword("");
+                setNewPassword("");
+                setConfirmPassword("");
+              }}
+              className="absolute top-4 right-4 text-gray-450 hover:text-white transition text-lg"
+            >
+              ✕
+            </button>
+
+            <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+              🔒 Update Admin Password
+            </h3>
+
+            <form onSubmit={handlePasswordChangeSubmit} className="space-y-4">
+              <div className="space-y-1">
+                <label className="text-[10px] uppercase font-bold tracking-wider text-gray-400 block">
+                  Current Password
+                </label>
+                <input
+                  type="password"
+                  value={oldPassword}
+                  onChange={(e) => setOldPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-xl text-sm text-white placeholder-gray-600 focus:outline-none focus:border-indigo-500 transition-colors"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[10px] uppercase font-bold tracking-wider text-gray-400 block">
+                  New Password
+                </label>
+                <input
+                  type="password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  placeholder="•••••••• (Min 6 chars)"
+                  className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-xl text-sm text-white placeholder-gray-600 focus:outline-none focus:border-indigo-500 transition-colors"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[10px] uppercase font-bold tracking-wider text-gray-450 block">
+                  Confirm New Password
+                </label>
+                <input
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-xl text-sm text-white placeholder-gray-600 focus:outline-none focus:border-indigo-500 transition-colors"
+                />
+              </div>
+
+              <div className="flex gap-4 pt-4">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsChangePasswordOpen(false);
+                    setOldPassword("");
+                    setNewPassword("");
+                    setConfirmPassword("");
+                  }}
+                  className="flex-1 py-3 bg-gray-700 hover:bg-gray-650 border border-gray-600 rounded-xl text-xs font-bold uppercase tracking-wider text-gray-300 transition"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={changing}
+                  className="flex-1 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold uppercase tracking-wider transition disabled:opacity-50"
+                >
+                  {changing ? "Updating..." : "Save Password"}
+                </button>
+              </div>
+            </form>
+          </motion.div>
+        </div>
+      )}
+
       <Toaster position="top-center" />
     </div>
   );

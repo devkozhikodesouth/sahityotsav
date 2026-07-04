@@ -208,7 +208,6 @@ function Results({ festival }) {
 
       if (festival?.externalApiEnabled) {
         const responseData = await getProxyCompetitionResults(itemValue);
-        console.log(responseData,"dfdfd");
         toast.dismiss();
 
         const entries = Array.isArray(responseData) ? responseData : (Array.isArray(responseData.data) ? responseData.data : []);

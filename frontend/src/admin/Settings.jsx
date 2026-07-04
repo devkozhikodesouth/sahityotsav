@@ -29,7 +29,8 @@ function Settings() {
     mapLink: "",
     externalApiEnabled: false,
     externalApiKey: "",
-    externalBaseUrl: ""
+    externalBaseUrl: "",
+    teamPointsLimit: 0
   });
 
   // Preview and file state
@@ -62,7 +63,8 @@ function Settings() {
             mapLink: s.mapLink || "",
             externalApiEnabled: res.externalApiEnabled || false,
             externalApiKey: res.externalApiKey || "",
-            externalBaseUrl: res.externalBaseUrl || ""
+            externalBaseUrl: res.externalBaseUrl || "",
+            teamPointsLimit: res.teamPointsLimit || 0
           });
           setBannerPreview(s.bannerImage || "");
           setRightPreview(s.rightImage || "");
@@ -123,13 +125,15 @@ function Settings() {
           ...prev,
           externalApiEnabled: res.externalApiEnabled,
           externalApiKey: res.externalApiKey,
-          externalBaseUrl: res.externalBaseUrl
+          externalBaseUrl: res.externalBaseUrl,
+          teamPointsLimit: res.teamPointsLimit
         }));
         setSettings(prev => ({
           ...prev,
           externalApiEnabled: res.externalApiEnabled || false,
           externalApiKey: res.externalApiKey || "",
-          externalBaseUrl: res.externalBaseUrl || ""
+          externalBaseUrl: res.externalBaseUrl || "",
+          teamPointsLimit: res.teamPointsLimit || 0
         }));
       } else {
         toast.error(res.message || "Failed to update settings");
@@ -576,6 +580,24 @@ function Settings() {
                       className="w-full px-4 py-3 bg-gray-950 border border-gray-700 rounded-xl text-white placeholder-gray-600 focus:outline-none focus:border-indigo-500 transition"
                       required={settings.externalApiEnabled}
                     />
+                  </div>
+
+                  <div className="md:col-span-2">
+                    <label className="text-xs font-semibold text-indigo-400 uppercase tracking-wider block mb-2">
+                      External Team Points Limit
+                    </label>
+                    <input
+                      type="number"
+                      name="teamPointsLimit"
+                      placeholder="e.g. 2 (Enter 0 for no limit)"
+                      value={settings.teamPointsLimit}
+                      onChange={handleInputChange}
+                      min="0"
+                      className="w-full px-4 py-3 bg-gray-950 border border-gray-700 rounded-xl text-white placeholder-gray-600 focus:outline-none focus:border-indigo-500 transition"
+                    />
+                    <span className="text-[10px] text-gray-500 mt-1 block">
+                      Restricts the number of top-ranking teams returned when fetching points from the external API (e.g. set to 2 to only show the top 2 teams).
+                    </span>
                   </div>
                 </div>
               )}

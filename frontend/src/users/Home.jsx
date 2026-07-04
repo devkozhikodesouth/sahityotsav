@@ -183,7 +183,7 @@ export default function Home({ festival, onOpenMenu }) {
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.25, duration: 0.7 }}
-          className="w-full lg:w-[380px] flex justify-center relative mt-4 lg:mt-0"
+          className="hidden lg:flex w-full lg:w-[380px] justify-center relative mt-4 lg:mt-0"
         >
           <div className="relative p-4 bg-white/5 border border-accent/35 shadow-2xl w-full max-w-[350px] rounded-2xl backdrop-blur-md">
             <div className="relative aspect-[3/4] overflow-hidden rounded-xl border border-accent/20">

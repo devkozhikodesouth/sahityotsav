@@ -76,6 +76,10 @@ const FestivalSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
+    teamPointsLimit: {
+      type: Number,
+      default: 0,
+    },
   },
   { timestamps: true }
 );

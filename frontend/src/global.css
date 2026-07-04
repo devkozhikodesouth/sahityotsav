@@ -70,6 +70,14 @@
 }
 
 @layer utilities {
+  .scrollbar-none {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+
   .font-fractul {
     font-family: 'Fractul-SemiBold', sans-serif;
   }

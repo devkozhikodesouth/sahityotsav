@@ -80,13 +80,11 @@ function VideoShow() {
           <span className="text-accent font-heading font-semibold tracking-widest uppercase text-xs mb-2 flex items-center justify-center gap-2">
             <PlayCircle className="w-4 h-4" /> Watch Now
           </span>
-          <h2 className="text-4xl md:text-5xl font-heading font-black text-primary mb-3">
+          <h2 className="text-4xl md:text-5xl font-heading font-black text-primary ">
             Featured <span className="text-gradient">Videos</span>
           </h2>
           <div className="divider-vintage-ornamental max-w-xs mx-auto"></div>
-          <p className="text-secondary/80 max-w-xl mx-auto font-serif italic text-sm md:text-base">
-            Catch up on the latest highlights and performances.
-          </p>
+       
         </motion.div>
 
         {savedLink.length > 0 && (
@@ -95,7 +93,7 @@ function VideoShow() {
             initial="hidden"
             whileInView="show"
             viewport={{ once: true }}
-            className="flex flex-wrap justify-center gap-8 mb-12"
+            className="flex flex-nowrap overflow-x-auto gap-6 mb-12 pb-4 scrollbar-none snap-x snap-mandatory md:flex-wrap md:justify-center md:gap-8"
           >
             {savedLink.map((link, index) => {
               const match = link.url.match(
@@ -111,7 +109,7 @@ function VideoShow() {
                   key={index}
                   variants={itemVariants}
                   whileHover={{ y: -10 }}
-                  className="w-full sm:w-[80%] md:w-[45%] lg:w-[30%] max-w-sm rounded-xl overflow-hidden shadow-md border border-accent/30 bg-surface p-3 group"
+                  className="w-[75%] sm:w-[50%] md:w-[45%] lg:w-[30%] max-w-[280px] md:max-w-sm flex-shrink-0 snap-center rounded-xl overflow-hidden shadow-md border border-accent/30 bg-surface p-3 group"
                 >
                   {embedUrl ? (
                     <div className="relative pt-[177.78%] bg-primary-dark rounded-lg overflow-hidden group-hover:shadow-lg transition-shadow border border-accent/15">

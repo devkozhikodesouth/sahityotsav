@@ -44,7 +44,6 @@ export default function StudentDetails({ festival }) {
     setLoading(true);
     setError("");
     setData(null);
-
     try {
       const response = await axios.get("/external-participant-details", {
         params: {

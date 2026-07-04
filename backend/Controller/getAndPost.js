@@ -643,7 +643,8 @@ const getSettings = async (req, res) => {
       externalApiEnabled: festival.externalApiEnabled || false,
       apiKey: festival.apiKey || null,
       externalApiKey: festival.externalApiKey || "",
-      externalBaseUrl: festival.externalBaseUrl || ""
+      externalBaseUrl: festival.externalBaseUrl || "",
+      teamPointsLimit: festival.teamPointsLimit || 0
     });
   } catch (error) {
     console.error("Error getting settings:", error);
@@ -679,7 +680,8 @@ const updateSettings = async (req, res) => {
       mapLink,
       externalApiEnabled,
       externalApiKey,
-      externalBaseUrl
+      externalBaseUrl,
+      teamPointsLimit
     } = req.body;
 
     if (date !== undefined) festival.settings.date = date;
@@ -710,6 +712,10 @@ const updateSettings = async (req, res) => {
       festival.externalBaseUrl = externalBaseUrl;
     }
 
+    if (teamPointsLimit !== undefined) {
+      festival.teamPointsLimit = parseInt(teamPointsLimit, 10) || 0;
+    }
+
     if (req.files) {
       if (req.files.bannerImage && req.files.bannerImage[0]) {
         festival.settings.bannerImage = req.files.bannerImage[0].path;
@@ -729,7 +735,8 @@ const updateSettings = async (req, res) => {
       externalApiEnabled: festival.externalApiEnabled || false,
       apiKey: festival.apiKey || null,
       externalApiKey: festival.externalApiKey || "",
-      externalBaseUrl: festival.externalBaseUrl || ""
+      externalBaseUrl: festival.externalBaseUrl || "",
+      teamPointsLimit: festival.teamPointsLimit || 0
     });
   } catch (error) {
     console.error("Error updating settings:", error);
@@ -779,7 +786,6 @@ const getExternalCompetitions = async (req, res) => {
     const response = await axios.get(`${baseUrl}/public/competitions`, {
       headers: { "x-api-key": festival.externalApiKey }
     });
-    console.log(response)
     res.status(200).json(response.data);
   } catch (error) {
     console.error("Proxy Competitions Error:", error.message);
@@ -823,7 +829,7 @@ const getExternalTeamPoints = async (req, res) => {
       return res.status(400).json({ success: false, message: "External API integration is not enabled" });
     }
 
-    const limit = req.query.limit !== undefined ? req.query.limit : 0;
+    const limit = (req.query.limit && req.query.limit !== "0") ? req.query.limit : (festival.teamPointsLimit || 0);
     const teamTypeName = req.query.teamTypeName;
 
     let baseUrl = festival.externalBaseUrl.trim();

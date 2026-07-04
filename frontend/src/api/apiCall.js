@@ -358,12 +358,21 @@ async function resolveActiveFestival() {
   return response.data;
 }
 
+async function changePassword(oldPassword, newPassword) {
+  const response = await axios.post("/auth/change-password", {
+    oldPassword,
+    newPassword
+  });
+  return response.data;
+}
+
 // ---------------------------------------------------------------------------
 // Exports
 // ---------------------------------------------------------------------------
 
 export {
   resolveActiveFestival,
+  changePassword,
   getFullEventTitle,
   startProgram,
   checkforResult,
