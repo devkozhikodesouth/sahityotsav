@@ -115,7 +115,11 @@ function TeamPoint({ festival }) {
         >
           <span className="text-accent font-heading font-semibold tracking-widest uppercase text-xs mb-2 block">Leaderboard</span>
           <h2 className="text-4xl md:text-5xl font-heading font-black text-primary mb-3">
-            {afterCount === 10001 ? "Final " : `After ${afterCount} `}
+            {afterCount === 10001
+              ? (festival?.teamPointsLimit && parseInt(festival.teamPointsLimit, 10) !== 0
+                  ? `After ${festival.teamPointsLimit} `
+                  : "Final ")
+              : `After ${afterCount} `}
             <span className="text-gradient">Standings</span>
           </h2>
           <div className="divider-vintage-ornamental max-w-xs mx-auto"></div>
