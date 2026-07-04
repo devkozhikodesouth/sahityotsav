@@ -779,6 +779,7 @@ const getExternalCompetitions = async (req, res) => {
     const response = await axios.get(`${baseUrl}/public/competitions`, {
       headers: { "x-api-key": festival.externalApiKey }
     });
+    console.log(response)
     res.status(200).json(response.data);
   } catch (error) {
     console.error("Proxy Competitions Error:", error.message);

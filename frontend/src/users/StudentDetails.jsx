@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import axios from "../api/axios";
-import axiosDirect from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, Award, CheckCircle, Clock, AwardIcon, Sparkles, User, Calendar, BookOpen } from "lucide-react";
 
@@ -47,39 +46,10 @@ export default function StudentDetails({ festival }) {
     setData(null);
 
     try {
-      if (!festival?.externalBaseUrl) {
-        throw new Error("External API base URL is not configured.");
-      }
-
-      let baseUrl = festival.externalBaseUrl.trim();
-      if (baseUrl.endsWith("/")) {
-        baseUrl = baseUrl.slice(0, -1);
-      }
-
-      // Extract relative path (usually /api) from the externalBaseUrl
-      let relativePath = "/api";
-      try {
-        const parsedUrl = new URL(baseUrl);
-        relativePath = parsedUrl.pathname;
-      } catch (e) {
-        if (baseUrl.includes("/api")) {
-          relativePath = baseUrl.substring(baseUrl.indexOf("/api"));
-        }
-      }
-      if (relativePath.endsWith("/")) {
-        relativePath = relativePath.slice(0, -1);
-      }
-
-      // Prefix requests with /api-external to route through local Vite proxy or Vercel rewrite
-      const requestUrl = `/api-external${relativePath}/public/participant-details`;
-
-      const response = await axiosDirect.get(requestUrl, {
+      const response = await axios.get("/external-participant-details", {
         params: {
           chestNumber: chestNumber.trim(),
           dob: dob.trim()
-        },
-        headers: {
-          "x-api-key": festival.externalApiKey
         }
       });
 

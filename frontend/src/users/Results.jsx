@@ -37,6 +37,7 @@ function Results({ festival }) {
             if (comp.category && !catMap[comp.category]) {
               const catObj = {
                 _id: comp.category,
+                resultNumber:comp.resultNumber,
                 categoryName: comp.category
               };
               catMap[comp.category] = catObj;
@@ -255,13 +256,15 @@ function Results({ festival }) {
 
           setResults(formattedResult);
           
-          const externalResultNumber = responseData.resultNumber !== undefined 
-            ? responseData.resultNumber 
-            : (responseData.data?.resultNumber !== undefined 
-                ? responseData.data.resultNumber 
-                : (entries[0]?.resultNumber !== undefined 
-                    ? entries[0].resultNumber 
-                    : (entries[0]?.rank !== undefined ? entries[0].rank : entries.length)));
+          const externalResultNumber = comp && comp.resultNumber !== undefined && comp.resultNumber !== null
+            ? comp.resultNumber
+            : (responseData.resultNumber !== undefined 
+                ? responseData.resultNumber 
+                : (responseData.data?.resultNumber !== undefined 
+                    ? responseData.data.resultNumber 
+                    : (entries[0]?.resultNumber !== undefined 
+                        ? entries[0].resultNumber 
+                        : (entries[0]?.rank !== undefined ? entries[0].rank : entries.length))));
           
           setResultNumber(externalResultNumber !== null && externalResultNumber !== undefined ? Number(externalResultNumber) : null);
           toast.success(`Published: ${tDetails.category} - ${tDetails.item}`);
