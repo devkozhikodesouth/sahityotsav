@@ -108,14 +108,23 @@ function Results({ festival }) {
     }
 
     if (resultNumber === null || resultNumber === undefined || dynamicTemplates.length === 0) {
-      return dynamicTemplates.length > 0 ? [dynamicTemplates[0]] : [];
+      return [];
     }
 
     const matchedTemplate = dynamicTemplates.find(t => {
-      return resultNumber >= t.minResultNumber && resultNumber <= t.maxResultNumber;
+      const min = t.minResultNumber !== undefined && t.minResultNumber !== null && t.minResultNumber !== ""
+        ? Number(t.minResultNumber)
+        : null;
+      const max = t.maxResultNumber !== undefined && t.maxResultNumber !== null && t.maxResultNumber !== ""
+        ? Number(t.maxResultNumber)
+        : null;
+
+      if (min === null || max === null) return false;
+      const val = Number(resultNumber);
+      return val >= min && val <= max;
     });
 
-    return matchedTemplate ? [matchedTemplate] : (dynamicTemplates.length > 0 ? [dynamicTemplates[0]] : []);
+    return matchedTemplate ? [matchedTemplate] : [];
   };
 
   useEffect(() => {
@@ -135,26 +144,23 @@ function Results({ festival }) {
   const getFilteredAd = (resultNum) => {
     if (!ads || ads.length === 0) return null;
     if (resultNum === null || resultNum === undefined) {
-      return ads.find(ad => ad.startRange === null && ad.endRange === null && ad.minRank === null && ad.maxRank === null) || null;
+      return null;
     }
 
     const matchedAd = ads.find(ad => {
-      const start = ad.startRange !== null && ad.startRange !== undefined 
-        ? ad.startRange 
-        : (ad.minRank !== null && ad.minRank !== undefined ? ad.minRank : null);
-      const end = ad.endRange !== null && ad.endRange !== undefined 
-        ? ad.endRange 
-        : (ad.maxRank !== null && ad.maxRank !== undefined ? ad.maxRank : null);
+      const start = ad.startRange !== null && ad.startRange !== undefined && ad.startRange !== ""
+        ? Number(ad.startRange)
+        : (ad.minRank !== null && ad.minRank !== undefined && ad.minRank !== "" ? Number(ad.minRank) : null);
+      const end = ad.endRange !== null && ad.endRange !== undefined && ad.endRange !== ""
+        ? Number(ad.endRange)
+        : (ad.maxRank !== null && ad.maxRank !== undefined && ad.maxRank !== "" ? Number(ad.maxRank) : null);
 
-      if (start === null && end === null) return false;
-      const min = start !== null ? start : -Infinity;
-      const max = end !== null ? end : Infinity;
-      return resultNum >= min && resultNum <= max;
+      if (start === null || end === null) return false;
+      const val = Number(resultNum);
+      return val >= start && val <= end;
     });
 
-    if (matchedAd) return matchedAd;
-
-    return ads.find(ad => ad.startRange === null && ad.endRange === null && ad.minRank === null && ad.maxRank === null) || null;
+    return matchedAd || null;
   };
 
   const handleCategoryChange = (event) => {
@@ -194,6 +200,7 @@ function Results({ festival }) {
 
       if (festival?.externalApiEnabled) {
         const responseData = await getProxyCompetitionResults(itemValue);
+        console.log(responseData,"dfdfd");
         toast.dismiss();
 
         const entries = Array.isArray(responseData) ? responseData : (Array.isArray(responseData.data) ? responseData.data : []);
@@ -213,19 +220,31 @@ function Results({ festival }) {
           ];
 
           entries.forEach(entry => {
+            let winnerName = "";
+            if (entry.leaderName) {
+              winnerName = `${entry.leaderName} and team`;
+            } else if (entry.groupName) {
+              winnerName = `${entry.groupName} and team`;
+            } else {
+              winnerName = entry.participantName || "";
+            }
+
             const mappedWinner = {
-              name: entry.participantName || entry.groupName || "",
+              name: winnerName,
               team: entry.teamName,
               teamId: { teamName: entry.teamName }
             };
-            // If it is a group and leader is specified, include it
-            if (entry.groupName && entry.leaderName) {
-              mappedWinner.name = `${entry.groupName} (Leader: ${entry.leaderName})`;
-            }
 
-            if (entry.rank === 1) resultGrouped[0].winners.push(mappedWinner);
-            else if (entry.rank === 2) resultGrouped[1].winners.push(mappedWinner);
-            else if (entry.rank === 3) resultGrouped[2].winners.push(mappedWinner);
+            const rankNum = Number(entry.rank);
+            const prizeStr = String(entry.prize || "").toUpperCase();
+
+            if (rankNum === 1 || prizeStr === "FIRST" || prizeStr === "1ST") {
+              resultGrouped[0].winners.push(mappedWinner);
+            } else if (rankNum === 2 || prizeStr === "SECOND" || prizeStr === "2ND") {
+              resultGrouped[1].winners.push(mappedWinner);
+            } else if (rankNum === 3 || prizeStr === "THIRD" || prizeStr === "3RD") {
+              resultGrouped[2].winners.push(mappedWinner);
+            }
           });
 
           const formattedResult = {
@@ -253,7 +272,7 @@ function Results({ festival }) {
         }
       } else {
         const response = await getDataServer(itemValue, category);
-        const { success, data } = response;
+        const { success, data, resultNumber: apiResultNumber } = response;
         setTostData({
           category: data?.category?.categoryName || "Category",
           item: data?.item?.itemName || "Item",
@@ -263,13 +282,20 @@ function Results({ festival }) {
         if (success) {
           toast.success(`Published: ${data?.category?.categoryName || "Result"} - ${data?.item?.itemName || "Event"}`);
           
-          let count = 0;
-          if (data?.result && Array.isArray(data.result)) {
-            data.result.forEach(pos => {
-              if (Array.isArray(pos.winners)) {
-                count += pos.winners.length;
-              }
-            });
+          let count = apiResultNumber !== undefined && apiResultNumber !== null
+            ? Number(apiResultNumber)
+            : null;
+
+          if (count === null) {
+            let totalWinners = 0;
+            if (data?.result && Array.isArray(data.result)) {
+              data.result.forEach(pos => {
+                if (Array.isArray(pos.winners)) {
+                  totalWinners += pos.winners.length;
+                }
+              });
+            }
+            count = totalWinners;
           }
           setResultNumber(count);
         } else {

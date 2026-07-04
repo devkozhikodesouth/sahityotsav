@@ -297,13 +297,30 @@ const getCompetitionResults = async (req, res) => {
       else if (rank === 3) point = 1;
 
       detail.winners.forEach(winner => {
-        entries.push({
-          rank,
-          teamName: winner.teamId?.teamName || winner.team || "Unknown Team",
-          participantName: winner.name,
-          point,
-          grade: rank === 1 ? "A" : rank === 2 ? "A" : "B"
-        });
+        const nameVal = winner.name || "";
+        const leaderMatch = nameVal.match(/^(.*?)\s*\(Leader:\s*(.*?)\)$/i);
+        const prize = rank === 1 ? "FIRST" : rank === 2 ? "SECOND" : rank === 3 ? "THIRD" : null;
+
+        if (leaderMatch) {
+          entries.push({
+            rank,
+            teamName: winner.teamId?.teamName || winner.team || "Unknown Team",
+            groupName: leaderMatch[1].trim(),
+            leaderName: leaderMatch[2].trim(),
+            point,
+            grade: rank === 1 ? "A+" : rank === 2 ? "A" : "B",
+            prize
+          });
+        } else {
+          entries.push({
+            rank,
+            teamName: winner.teamId?.teamName || winner.team || "Unknown Team",
+            participantName: nameVal,
+            point,
+            grade: rank === 1 ? "A+" : rank === 2 ? "A" : "B",
+            prize
+          });
+        }
       });
     });
 

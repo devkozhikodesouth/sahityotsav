@@ -6,7 +6,6 @@ function ImageDownload({ results, category, item, color, image, positions, activ
   const downloadImageRef = useRef(null);
   const containerRef = useRef(null);
   const [scaleFactor, setScaleFactor] = useState(1);
-  const [downloadedImage, setDownloadedImage] = useState(null);
 
   useEffect(() => {
     const handleResize = () => {
@@ -40,19 +39,13 @@ function ImageDownload({ results, category, item, color, image, positions, activ
       const data = canvas.toDataURL("image/jpeg", 0.95);
       toast.dismiss();
 
-      const isMobileDevice = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || window.innerWidth < 768;
-
-      if (isMobileDevice) {
-        setDownloadedImage(data);
-      } else {
-        const link = document.createElement("a");
-        link.href = data;
-        link.download = `${category}-${item}.jpg`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        toast.success("Download started!");
-      }
+      const link = document.createElement("a");
+      link.href = data;
+      link.download = `${category}-${item}.jpg`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      toast.success("Download started!");
     } catch (err) {
       toast.dismiss();
       toast.error("Failed to generate image.");
@@ -144,13 +137,13 @@ function ImageDownload({ results, category, item, color, image, positions, activ
                                 className={`leading-tight font-biorhyme font-bold ${color}`}
                                 style={{ fontSize: `${12 * scale}px` }}
                               >
-                                {winner.name?.toLowerCase()?.replace(/^\w/, (c) => c.toUpperCase()) || ""}
+                                {winner.name || ""}
                               </div>
                               <div 
                                 className={`leading-tight montserrat-regular ${color}`}
                                 style={{ fontSize: `${10 * scale}px` }}
                               >
-                                {(winner.teamId?.teamName || winner.team)?.toLowerCase()?.replace(/^\w/, (c) => c.toUpperCase()) || ""}
+                                {winner.teamId?.teamName || winner.team || ""}
                               </div>
                             </div>
                           ))}
@@ -186,36 +179,7 @@ function ImageDownload({ results, category, item, color, image, positions, activ
             Download
           </button>
 
-          {/* Mobile Save Image Modal */}
-          {downloadedImage && (
-            <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-              <div className="bg-white rounded-3xl p-6 max-w-sm w-full flex flex-col items-center space-y-4 shadow-2xl relative">
-                <button
-                  onClick={() => setDownloadedImage(null)}
-                  className="absolute top-4 right-4 text-gray-500 hover:text-gray-800 text-sm font-bold bg-gray-100 w-8 h-8 rounded-full flex items-center justify-center"
-                >
-                  ✕
-                </button>
-                <h3 className="text-md font-bold text-gray-900 mt-2">Save Result Poster</h3>
-                <p className="text-xs text-gray-500 text-center leading-relaxed">
-                  Touch and hold the image below, then choose <strong>"Save Image"</strong> or <strong>"Add to Photos"</strong>.
-                </p>
-                <div className="w-full rounded-2xl overflow-hidden border border-gray-200 shadow-inner">
-                  <img
-                    src={downloadedImage}
-                    alt="Generated result"
-                    className="w-full object-contain"
-                  />
-                </div>
-                <button
-                  onClick={() => setDownloadedImage(null)}
-                  className="w-full py-2.5 bg-gray-900 hover:bg-black text-white rounded-xl text-xs font-bold transition"
-                >
-                  Close
-                </button>
-              </div>
-            </div>
-          )}
+
         </div>
       )}
     </>
