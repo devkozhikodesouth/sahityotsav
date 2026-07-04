@@ -18,9 +18,9 @@ const validatePublicKey = async (req, res, next) => {
       return next();
     }
 
-    const festival = await Festival.findOne({ apiKey: apiKey.toLowerCase().trim() });
+    const festival = await Festival.findOne();
     
-    if (!festival) {
+    if (!festival || festival.apiKey !== apiKey.toLowerCase().trim()) {
       return res.status(401).json({
         msg: "Unauthorized: Invalid API Key.",
         status: 401,

@@ -162,8 +162,8 @@ async function editTeam(teamId, teamName) {
 // Gallery
 // ---------------------------------------------------------------------------
 
-async function addToGallery(formData) {
-  const response = await axios.post("/upload-gallery", formData);
+async function addToGallery(formData, config = {}) {
+  const response = await axios.post("/upload-gallery", formData, config);
   return response.data;
 }
 

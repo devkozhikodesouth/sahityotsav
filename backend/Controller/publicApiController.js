@@ -108,11 +108,9 @@ const getTeamPoints = async (req, res) => {
       });
     }
 
-    const festivalId = req.festival._id;
-
     // Default: limit is 0 (or unspecified). Return pre-computed standings.
     if (limit === 0) {
-      const data = await TeamPoint.findOne({ festivalId }).populate("results.team");
+      const data = await TeamPoint.findOne().populate("results.team");
       if (data && data.results && data.results.length > 0) {
         const validResults = data.results.filter(item => item.team);
 
@@ -145,7 +143,7 @@ const getTeamPoints = async (req, res) => {
     }
 
     // Dynamic Standings: compile dynamically from the latest N results
-    const results = await Result.find({ festivalId, isPublished: true })
+    const results = await Result.find({ isPublished: true })
       .sort({ createdAt: -1 })
       .limit(limit)
       .populate("result.winners.teamId");
@@ -205,10 +203,8 @@ const getCompetitions = async (req, res) => {
       });
     }
 
-    const festivalId = req.festival._id;
-
     // Find all results with published statuses
-    const results = await Result.find({ festivalId, isPublished: true })
+    const results = await Result.find({ isPublished: true })
       .populate("category item");
 
     const data = results.map(r => {
@@ -265,10 +261,8 @@ const getCompetitionResults = async (req, res) => {
       }
     }
 
-    const festivalId = req.festival._id;
-
     // Look up by Item ID (competition ID is mapped from Item ID in list) or database ID
-    let query = { festivalId, isPublished: true };
+    let query = { isPublished: true };
     if (mongoose.Types.ObjectId.isValid(competitionId)) {
       query.$or = [{ item: competitionId }, { _id: competitionId }];
     } else {
@@ -364,11 +358,8 @@ const getParticipantDetails = async (req, res) => {
       });
     }
 
-    const festivalId = req.festival._id;
-
     // Search case-insensitively for the chestNumber and match dob
     const participant = await Participant.findOne({
-      festivalId,
       chestNumber: { $regex: new RegExp(`^${chestNumber.trim()}$`, "i") },
       dob: dob.trim()
     });

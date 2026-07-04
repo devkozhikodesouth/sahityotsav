@@ -4,7 +4,7 @@ const liveSchema = new mongoose.Schema({
   festivalId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Festival",
-    required: true,
+    required: false,
   },
   live1: {
     url: { type: String, required: true }

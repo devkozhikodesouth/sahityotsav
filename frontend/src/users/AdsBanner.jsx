@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { getAds } from "../api/apiCall";
 import { ChevronLeft, ChevronRight, Link2 } from "lucide-react";
 
-const AdsBanner = ({ className = "" }) => {
+const AdsBanner = ({ className = "", bgColor }) => {
   const [ads, setAds] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -50,7 +50,7 @@ const AdsBanner = ({ className = "" }) => {
   const currentAd = ads[currentIndex];
 
   return (
-    <div className={`w-full py-10 md:py-16 bg-background relative overflow-hidden paper-texture flex flex-col justify-center items-center ${className}`}>
+    <section className={`w-full pt-8 pb-8 md:pt-10 md:pb-10 bg-background relative overflow-hidden paper-texture flex flex-col justify-center items-center ${className}`} style={{ backgroundColor: bgColor || "#F4EFE3" }}>
       <div className="max-w-5xl w-full mx-4 px-4 relative group">
         
         {/* Slideshow Container */}
@@ -131,7 +131,7 @@ const AdsBanner = ({ className = "" }) => {
           </div>
         )}
       </div>
-    </div>
+    </section>
   );
 };
 

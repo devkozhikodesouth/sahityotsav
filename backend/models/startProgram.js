@@ -3,8 +3,7 @@ const startProgramSchema=new mongoose.Schema({
     festivalId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Festival",
-        required: true,
-        unique: true
+        required: false,
     },
     startProgram:{
         type:Boolean,

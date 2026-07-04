@@ -3,7 +3,7 @@ const LiveLink = require("../models/LiveModel");
 
 const getYoutube = async (req, res) => {
   try {
-    const link = await YoutubeLink.find({ festivalId: req.tenantId }).sort({
+    const link = await YoutubeLink.find().sort({
       createdAt: -1,
     });
     res.json({ url: link });
@@ -15,7 +15,7 @@ const getYoutube = async (req, res) => {
 const addYoutube = async (req, res) => {
   try {
     const { url } = req.body;
-    const newLink = new YoutubeLink({ url, festivalId: req.tenantId });
+    const newLink = new YoutubeLink({ url });
     await newLink.save();
     res.json({ success: true, url });
   } catch (error) {
@@ -29,7 +29,6 @@ const deleteYoutube = async (req, res) => {
 
     const result = await YoutubeLink.deleteOne({
       _id: id,
-      festivalId: req.tenantId,
     });
 
     if (result.deletedCount === 0) {
@@ -46,7 +45,7 @@ const deleteYoutube = async (req, res) => {
 
 const get3Youtube = async (req, res) => {
   try {
-    const link = await YoutubeLink.find({ festivalId: req.tenantId })
+    const link = await YoutubeLink.find()
       .limit(3)
       .sort({ createdAt: -1 });
     res.json({ url: link });
@@ -64,7 +63,7 @@ const updateLiveStreams = async (req, res) => {
   const live2 = { url: cleanUrl(lives[1]?.url) };
 
   try {
-    let existing = await LiveLink.findOne({ festivalId: req.tenantId });
+    let existing = await LiveLink.findOne();
 
     if (existing) {
       existing.live1.url = live1.url;
@@ -74,7 +73,6 @@ const updateLiveStreams = async (req, res) => {
       existing = await LiveLink.create({
         live1,
         live2,
-        festivalId: req.tenantId,
       });
     }
 
@@ -87,7 +85,7 @@ const updateLiveStreams = async (req, res) => {
 
 const getLiveStreams = async (req, res) => {
   try {
-    const streams = await LiveLink.findOne({ festivalId: req.tenantId });
+    const streams = await LiveLink.findOne();
     res.json({ success: true, data: streams });
   } catch (err) {
     res

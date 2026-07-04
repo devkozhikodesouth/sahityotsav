@@ -4,8 +4,7 @@ const TeamPointSchema = new mongoose.Schema({
     festivalId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Festival",
-      required: true,
-      unique: true
+      required: false,
     },
     results: [ 
       {

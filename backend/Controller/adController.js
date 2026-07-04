@@ -24,7 +24,6 @@ const saveAd = async (req, res) => {
       maxRank: isNaN(parsedMaxRank) ? null : parsedMaxRank,
       startRange: isNaN(parsedMinRank) ? null : parsedMinRank,
       endRange: isNaN(parsedMaxRank) ? null : parsedMaxRank,
-      festivalId: req.tenantId,
     });
 
     res.status(201).json({ success: true, data: newAd });
@@ -36,7 +35,7 @@ const saveAd = async (req, res) => {
 
 const getAds = async (req, res) => {
   try {
-    const ads = await Ad.find({ festivalId: req.tenantId }).sort({
+    const ads = await Ad.find().sort({
       createdAt: -1,
     });
 
@@ -52,7 +51,7 @@ const deleteAd = async (req, res) => {
     const id = req.params.id;
 
     // Find ad scoped to tenant
-    const ad = await Ad.findOne({ _id: id, festivalId: req.tenantId });
+    const ad = await Ad.findOne({ _id: id });
     if (!ad) {
       return res.status(404).json({ success: false, message: "Advertisement not found" });
     }
@@ -61,7 +60,7 @@ const deleteAd = async (req, res) => {
     await cloudinary.uploader.destroy(ad.publicId);
 
     // Delete from MongoDB
-    await Ad.findOneAndDelete({ _id: id, festivalId: req.tenantId });
+    await Ad.findOneAndDelete({ _id: id });
 
     res.json({ success: true, message: "Advertisement deleted successfully" });
   } catch (err) {

@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Newspaper, ArrowRight } from "lucide-react";
 
-const ShowNews = () => {
+const ShowNews = ({ bgColor }) => {
   const [newsList, setNewsList] = useState([]);
 
   useEffect(() => {
@@ -38,12 +38,12 @@ const ShowNews = () => {
   if (!newsList || newsList.length === 0) return null;
 
   return (
-    <section id="news" className="w-full py-24 bg-background relative overflow-hidden paper-texture">
+    <section id="news" className="w-full pt-8 pb-8 md:pt-10 md:pb-10 bg-background relative overflow-hidden paper-texture" style={{ backgroundColor: bgColor || "#FDFBF7" }}>
       {/* Decorative Ornaments */}
-      <div className="absolute top-6 left-6 w-16 h-16 border-t-2 border-l-2 border-accent/20 pointer-events-none z-10"></div>
-      <div className="absolute top-6 right-6 w-16 h-16 border-t-2 border-r-2 border-accent/20 pointer-events-none z-10"></div>
-      <div className="absolute bottom-6 left-6 w-16 h-16 border-b-2 border-l-2 border-accent/20 pointer-events-none z-10"></div>
-      <div className="absolute bottom-6 right-6 w-16 h-16 border-b-2 border-r-2 border-accent/20 pointer-events-none z-10"></div>
+      <div className="hidden md:block absolute top-6 left-6 w-16 h-16 border-t-2 border-l-2 border-accent/20 pointer-events-none z-10"></div>
+      <div className="hidden md:block absolute top-6 right-6 w-16 h-16 border-t-2 border-r-2 border-accent/20 pointer-events-none z-10"></div>
+      <div className="hidden md:block absolute bottom-6 left-6 w-16 h-16 border-b-2 border-l-2 border-accent/20 pointer-events-none z-10"></div>
+      <div className="hidden md:block absolute bottom-6 right-6 w-16 h-16 border-b-2 border-r-2 border-accent/20 pointer-events-none z-10"></div>
 
       <div className="max-w-7xl mx-auto px-4 md:px-8 relative z-10">
         <motion.div

@@ -470,3 +470,12 @@ html {
 .animate-spin-slow {
   animation: spinSlow 30s infinite linear;
 }
+
+/* Dynamic alternating backgrounds for visible user sections in the DOM */
+#user-sections-container > section:nth-of-type(odd) {
+  background-color: #F4EFE3 !important;
+}
+
+#user-sections-container > section:nth-of-type(even) {
+  background-color: #FDFBF7 !important;
+}

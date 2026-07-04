@@ -17,7 +17,7 @@ const addBrochureSchema = new mongoose.Schema({
  festivalId: {
   type: mongoose.Schema.Types.ObjectId,
   ref: "Festival",
-  required: true,
+  required: false,
  },
  image1:brochureImageSchema,
  image2:brochureImageSchema,

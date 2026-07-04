@@ -55,10 +55,10 @@ function VideoLink() {
   const showSwitchButton = hasLive1 && hasLive2;
 
   return (
-    <div id="live" className="flex flex-col items-center pt-16 pb-20 bg-secondary relative overflow-hidden paper-texture border-t border-b border-accent/20">
+    <div id="live" className="flex flex-col items-center pt-12 pb-10 md:pt-16 md:pb-12 bg-secondary relative overflow-hidden paper-texture border-t border-b border-accent/20">
       {/* Decorative corners */}
-      <div className="absolute top-6 left-6 w-12 h-12 border-t border-l border-accent/30 pointer-events-none"></div>
-      <div className="absolute top-6 right-6 w-12 h-12 border-t border-r border-accent/30 pointer-events-none"></div>
+      <div className="hidden md:block absolute top-6 left-6 w-12 h-12 border-t border-l border-accent/30 pointer-events-none"></div>
+      <div className="hidden md:block absolute top-6 right-6 w-12 h-12 border-t border-r border-accent/30 pointer-events-none"></div>
 
       <h2 className="py-4 text-4xl lg:text-5xl text-accent font-heading font-black tracking-wide text-center">
         Live Stream

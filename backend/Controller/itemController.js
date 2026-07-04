@@ -8,16 +8,14 @@ const addItem = async (req, res) => {
 
     const isCategoryAvailable = await Category.findOne({
       _id: categoryId,
-      festivalId: req.tenantId,
     });
     if (!isCategoryAvailable) {
-      return res.status(404).json({ message: "The category is not available in this festival" });
+      return res.status(404).json({ message: "The category is not available" });
     }
 
     const existingItemInSameCate = await Item.findOne({
       itemName,
       categoryName: categoryId,
-      festivalId: req.tenantId,
     });
     if (existingItemInSameCate) {
       return res.status(400).json({ message: "Item already added" });
@@ -26,7 +24,6 @@ const addItem = async (req, res) => {
     const newItem = new Item({
       itemName,
       categoryName: categoryId,
-      festivalId: req.tenantId,
     });
     const savedData = await newItem.save();
 
@@ -46,7 +43,6 @@ const getItem = async (req, res) => {
     const { categoryId } = req.params;
     const itemData = await Item.find({
       categoryName: categoryId,
-      festivalId: req.tenantId,
     });
     if (itemData) {
       return res
@@ -66,7 +62,6 @@ const getPublishedItem = async (req, res) => {
     const { categoryId } = req.params;
     const publishedResults = await Result.find({
       category: categoryId,
-      festivalId: req.tenantId,
       isPublished: { $ne: false },
     }).populate("item");
 
@@ -94,7 +89,6 @@ const deleteItem = async (req, res) => {
 
     const deletedItem = await Item.findOneAndDelete({
       _id: itemId,
-      festivalId: req.tenantId,
     });
     if (!deletedItem) {
       return res.status(404).json({ message: "Item not found" });
@@ -116,7 +110,6 @@ const editItemName = async (req, res) => {
     const existingItem = await Item.findOne({
       categoryName: categoryId,
       itemName,
-      festivalId: req.tenantId,
     });
     if (existingItem && existingItem._id.toString() !== itemId) {
       return res
@@ -125,7 +118,7 @@ const editItemName = async (req, res) => {
     }
 
     const savedItem = await Item.findOneAndUpdate(
-      { _id: itemId, festivalId: req.tenantId },
+      { _id: itemId },
       { itemName },
       { new: true }
     );

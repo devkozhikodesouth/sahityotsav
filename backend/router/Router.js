@@ -19,10 +19,6 @@ const newsController = require("../Controller/newsController.js");
 const adController = require("../Controller/adController.js");
 
 const { authenticateToken } = require("../middleware/auth");
-const {
-  validateTenantAccess,
-  extractTenantContext,
-} = require("../middleware/tenant");
 
 // 1. Mount Auth and Public API routes
 const authRoutes = require("./authRoutes");
@@ -31,10 +27,8 @@ const publicApiRoutes = require("./publicApiRoutes");
 router.use("/auth", authRoutes);
 router.use("/public", publicApiRoutes);
 
-// 2. Public Guest routes for a specific festival (NO authentication required)
-// Guarded by extractTenantContext to set req.tenantId
+// 2. Public Guest routes (NO authentication required)
 const guestRouter = express.Router({ mergeParams: true });
-guestRouter.use(extractTenantContext);
 
 guestRouter.get("/checkstatprogram", dataController.checkStartProgram);
 guestRouter.get("/getresult", dataController.getData);
@@ -66,11 +60,9 @@ guestRouter.get("/external-participant-details", dataController.getExternalParti
 // Mount the guest routes
 router.use("/", guestRouter);
 
-// 3. Admin routes for a specific festival (Authentication and assignment required)
-// Guarded by authenticateToken and validateTenantAccess
+// 3. Admin routes (Authentication required)
 const adminRouter = express.Router({ mergeParams: true });
 adminRouter.use(authenticateToken);
-adminRouter.use(validateTenantAccess);
 
 // Read configurations/lists available for admins
 adminRouter.get("/checkstatprogram", dataController.checkStartProgram);

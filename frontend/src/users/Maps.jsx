@@ -2,13 +2,13 @@ import React from "react";
 import { motion } from "framer-motion";
 import { MapPin } from "lucide-react";
 
-function Maps({ festival }) {
+function Maps({ festival, bgColor }) {
   const mapLink = festival?.settings?.mapLink || "https://www.google.com/maps/embed?pb=!1m17!1m12!1m3!1d3911.563552654755!2d75.86181397505054!3d11.366555588820399!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m2!1m1!2zMTHCsDIxJzU5LjYiTiA3NcKwNTEnNTEuOCJF!5e0!3m2!1sen!2sin!4v1753490288065!5m2!1sen!2sin";
   return (
-    <section id="map" className="w-full py-24 bg-background relative overflow-hidden paper-texture border-t border-accent/15">
+    <section id="map" className="w-full pt-8 pb-16 md:pt-10 md:pb-20 bg-background relative overflow-hidden paper-texture border-t border-accent/15" style={{ backgroundColor: bgColor || "#F4EFE3" }}>
       {/* Decorative Ornaments */}
-      <div className="absolute top-6 left-6 w-16 h-16 border-t-2 border-l-2 border-accent/20 pointer-events-none z-10"></div>
-      <div className="absolute top-6 right-6 w-16 h-16 border-t-2 border-r-2 border-accent/20 pointer-events-none z-10"></div>
+      <div className="hidden md:block absolute top-6 left-6 w-16 h-16 border-t-2 border-l-2 border-accent/20 pointer-events-none z-10"></div>
+      <div className="hidden md:block absolute top-6 right-6 w-16 h-16 border-t-2 border-r-2 border-accent/20 pointer-events-none z-10"></div>
 
       <div className="max-w-7xl mx-auto px-4 md:px-8 relative z-10">
         

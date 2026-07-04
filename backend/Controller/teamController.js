@@ -10,7 +10,6 @@ const addTeam = async (req, res) => {
 
     const teamData = await Teams.findOne({
       teamName,
-      festivalId: req.tenantId,
     }).session(session);
 
     if (teamData) {
@@ -20,14 +19,12 @@ const addTeam = async (req, res) => {
     }
 
     const [newTeam] = await Teams.create(
-      [{ teamName, festivalId: req.tenantId }],
+      [{ teamName }],
       { session }
     );
 
     // Update TeamPoint for this festival
-    let newTeamPoint = await TeamPoint.findOne({
-      festivalId: req.tenantId,
-    }).session(session);
+    let newTeamPoint = await TeamPoint.findOne().session(session);
 
     if (newTeamPoint) {
       newTeamPoint.results.push({ team: newTeam._id, point: 0 });
@@ -36,7 +33,6 @@ const addTeam = async (req, res) => {
       await TeamPoint.create(
         [
           {
-            festivalId: req.tenantId,
             results: [{ team: newTeam._id, point: 0 }],
           },
         ],
@@ -61,7 +57,7 @@ const addTeam = async (req, res) => {
 
 const getTeam = async (req, res) => {
   try {
-    const getTeam = await Teams.find({ festivalId: req.tenantId });
+    const getTeam = await Teams.find();
     if (getTeam) {
       res.status(200).json({
         data: getTeam.reverse(),
@@ -87,13 +83,11 @@ const deleteTeam = async (req, res) => {
     session.startTransaction();
     const isTeamAvailable = await Teams.findOne({
       _id: teamId,
-      festivalId: req.tenantId,
     }).session(session);
 
     if (isTeamAvailable) {
       await TeamPoint.findOneAndUpdate(
         {
-          festivalId: req.tenantId,
           "results.team": teamId,
         },
         { $pull: { results: { team: teamId } } }
@@ -101,7 +95,6 @@ const deleteTeam = async (req, res) => {
 
       await Teams.findOneAndDelete({
         _id: teamId,
-        festivalId: req.tenantId,
       }).session(session);
 
       await session.commitTransaction();
@@ -128,7 +121,6 @@ const editTeam = async (req, res) => {
 
     const existingTeam = await Teams.findOne({
       teamName,
-      festivalId: req.tenantId,
     });
     if (existingTeam && existingTeam._id.toString() !== teamId) {
       return res
@@ -137,7 +129,7 @@ const editTeam = async (req, res) => {
     }
 
     const savedTeam = await Teams.findOneAndUpdate(
-      { _id: teamId, festivalId: req.tenantId },
+      { _id: teamId },
       { teamName },
       { new: true }
     );

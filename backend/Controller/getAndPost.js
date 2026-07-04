@@ -28,7 +28,7 @@ cloudinary.config({
 const startProgram = async (req, res) => {
   try {
     const program = await startProgramModel.findOneAndUpdate(
-      { festivalId: req.tenantId },
+      {},
       { startProgram: true },
       { upsert: true, new: true }
     );
@@ -48,13 +48,13 @@ const startProgram = async (req, res) => {
 const stopProgram = async (req, res) => {
   try {
     const program = await startProgramModel.findOneAndUpdate(
-      { festivalId: req.tenantId },
+      {},
       { startProgram: false },
       { upsert: true, new: true }
     );
 
     // Delete all results for this festival
-    const deleteAllResult = await Result.deleteMany({ festivalId: req.tenantId });
+    const deleteAllResult = await Result.deleteMany({});
 
     if (program && deleteAllResult) {
       res.status(200).json({
@@ -76,7 +76,7 @@ const stopProgram = async (req, res) => {
 const resetProgram = async (req, res) => {
   try {
     const program = await startProgramModel.findOneAndUpdate(
-      { festivalId: req.tenantId },
+      {},
       { startProgram: false },
       { upsert: true, new: true }
     );
@@ -93,15 +93,15 @@ const resetProgram = async (req, res) => {
       liveDel,
       countDel,
     ] = await Promise.all([
-      Result.deleteMany({ festivalId: req.tenantId }),
-      Team.deleteMany({ festivalId: req.tenantId }),
-      TeamPoint.deleteMany({ festivalId: req.tenantId }),
-      Category.deleteMany({ festivalId: req.tenantId }),
-      addDescriptionModel.deleteMany({ festivalId: req.tenantId }),
-      Item.deleteMany({ festivalId: req.tenantId }),
-      Feature.deleteMany({ festivalId: req.tenantId }),
-      LiveLink.deleteMany({ festivalId: req.tenantId }),
-      Count.deleteMany({ festivalId: req.tenantId }),
+      Result.deleteMany({}),
+      Team.deleteMany({}),
+      TeamPoint.deleteMany({}),
+      Category.deleteMany({}),
+      addDescriptionModel.deleteMany({}),
+      Item.deleteMany({}),
+      Feature.deleteMany({}),
+      LiveLink.deleteMany({}),
+      Count.deleteMany({}),
     ]);
 
     const allSuccessful =
@@ -134,11 +134,10 @@ const resetProgram = async (req, res) => {
 
 const checkStartProgram = async (req, res) => {
   try {
-    let program = await startProgramModel.findOne({ festivalId: req.tenantId });
+    let program = await startProgramModel.findOne({});
 
     if (!program) {
       program = await startProgramModel.create({
-        festivalId: req.tenantId,
         startProgram: false,
       });
     }
@@ -159,15 +158,14 @@ const getData = async (req, res) => {
     const resultData = await Result.findOne({
       category,
       item,
-      festivalId: req.tenantId,
-    })
+      })
       .populate("category item")
       .populate("result.winners.teamId");
 
     if (resultData && resultData.isPublished !== false) {
       try {
         await Count.findOneAndUpdate(
-          { name: "resultViews", festivalId: new mongoose.Types.ObjectId(req.tenantId) },
+          { name: "resultViews" },
           { $inc: { value: 1 } },
           { upsert: true }
         );
@@ -193,8 +191,7 @@ const getData = async (req, res) => {
       const itemData = await Item.findOne({
         categoryName: category,
         _id: item,
-        festivalId: req.tenantId,
-      }).populate("categoryName");
+        }).populate("categoryName");
 
       return res.status(200).json({
         data: {
@@ -234,10 +231,10 @@ const addImage = async (req, res) => {
     } catch (e) {
       // fallback
     }
-    const existingImages = await ImageData.findOne({ festivalId: req.tenantId });
+    const existingImages = await ImageData.findOne({});
 
     const images = ["image1", "image2", "image3"];
-    const updatedImages = { festivalId: req.tenantId };
+    const updatedImages = {};
 
     images.forEach((imageKey, index) => {
       const file = req.files?.[imageKey]?.[0];
@@ -328,7 +325,7 @@ const addImage = async (req, res) => {
 
 const showImage = async (req, res) => {
   try {
-    const savedData = await ImageData.findOne({ festivalId: req.tenantId });
+    const savedData = await ImageData.findOne({});
     res.json({ data: savedData || null });
   } catch (error) {
     console.error("Show Image Error:", error.message);
@@ -376,8 +373,7 @@ const postData = async (req, res) => {
     const existingData = await Result.findOne({
       category: categoryId,
       item: itemId,
-      festivalId: req.tenantId,
-    });
+      });
 
     if (existingData) {
       existingData.result = resultData;
@@ -385,7 +381,6 @@ const postData = async (req, res) => {
       res.status(200).json({ message: "Data updated successfully" });
     } else {
       const newResult = new Result({
-        festivalId: req.tenantId,
         category: categoryId,
         item: itemId,
         result: resultData,
@@ -401,7 +396,7 @@ const postData = async (req, res) => {
 
 const allResult = async (req, res) => {
   try {
-    const allData = await Result.find({ festivalId: req.tenantId })
+    const allData = await Result.find({})
       .populate("category item")
       .populate("result.winners.teamId");
 
@@ -422,8 +417,7 @@ const deleteResult = async (req, res) => {
     const { id } = req.params;
     const deletedResult = await Result.findOneAndDelete({
       _id: id,
-      festivalId: req.tenantId,
-    });
+      });
     if (deletedResult) {
       res.status(200).json({ success: true, message: "Result deleted successfully" });
     } else {
@@ -438,7 +432,7 @@ const deleteResult = async (req, res) => {
 const togglePublishResult = async (req, res) => {
   try {
     const { id } = req.params;
-    const result = await Result.findOne({ _id: id, festivalId: req.tenantId });
+    const result = await Result.findOne({ _id: id });
     if (!result) {
       return res.status(404).json({ success: false, message: "Result not found" });
     }
@@ -459,14 +453,13 @@ const togglePublishResult = async (req, res) => {
 
 const saveTeamPoint = async (req, res) => {
   try {
-    let teamData = await TeamPoint.findOne({ festivalId: req.tenantId });
+    let teamData = await TeamPoint.findOne({});
 
     const input = req.body.formData;
     const afterCount = req.body.afterCount;
 
     if (!teamData) {
       teamData = new TeamPoint({
-        festivalId: req.tenantId,
         results: [],
         afterCount,
       });
@@ -502,7 +495,7 @@ const saveTeamPoint = async (req, res) => {
 
 const getTeamPoint = async (req, res) => {
   try {
-    const data = await TeamPoint.findOne({ festivalId: req.tenantId }).populate(
+    const data = await TeamPoint.findOne({}).populate(
       "results.team"
     );
 
@@ -532,7 +525,7 @@ const featureUpdate = async (req, res) => {
 
   try {
     const updatedFeature = await Feature.findOneAndUpdate(
-      { name, festivalId: req.tenantId },
+      { name },
       { enabled },
       { new: true, upsert: true }
     );
@@ -545,7 +538,7 @@ const featureUpdate = async (req, res) => {
 
 const getFeature = async (req, res) => {
   try {
-    let features = await Feature.find({ festivalId: req.tenantId });
+    let features = await Feature.find({});
     const requiredFeatures = [
       { name: "results", default: true },
       { name: "videos", default: true },
@@ -562,7 +555,6 @@ const getFeature = async (req, res) => {
     if (features.length === 0) {
       features = await Feature.insertMany(
         requiredFeatures.map(rf => ({
-          festivalId: req.tenantId,
           name: rf.name,
           enabled: rf.default
         }))
@@ -574,7 +566,6 @@ const getFeature = async (req, res) => {
       if (missingFeatures.length > 0) {
         const added = await Feature.insertMany(
           missingFeatures.map(rf => ({
-            festivalId: req.tenantId,
             name: rf.name,
             enabled: rf.default
           }))
@@ -591,20 +582,20 @@ const getFeature = async (req, res) => {
 const resetFeature = async (req, res) => {
   try {
     // Clear all existing features for this festival
-    await Feature.deleteMany({ festivalId: req.tenantId });
+    await Feature.deleteMany({});
 
     // Insert default features for this festival
     const defaultFeatures = await Feature.insertMany([
-      { festivalId: req.tenantId, name: "results", enabled: true },
-      { festivalId: req.tenantId, name: "videos", enabled: true },
-      { festivalId: req.tenantId, name: "live", enabled: true },
-      { festivalId: req.tenantId, name: "teamPoints", enabled: true },
-      { festivalId: req.tenantId, name: "news", enabled: false },
-      { festivalId: req.tenantId, name: "ads", enabled: false },
-      { festivalId: req.tenantId, name: "gallery", enabled: true },
-      { festivalId: req.tenantId, name: "theme", enabled: false },
-      { festivalId: req.tenantId, name: "map", enabled: false },
-      { festivalId: req.tenantId, name: "studentDetails", enabled: true }
+      { name: "results", enabled: true },
+      { name: "videos", enabled: true },
+      { name: "live", enabled: true },
+      { name: "teamPoints", enabled: true },
+      { name: "news", enabled: false },
+      { name: "ads", enabled: false },
+      { name: "gallery", enabled: true },
+      { name: "theme", enabled: false },
+      { name: "map", enabled: false },
+      { name: "studentDetails", enabled: true }
     ]);
 
     res.status(200).json({
@@ -621,8 +612,7 @@ const getResultCount = async (req, res) => {
   try {
     const countDoc = await Count.findOne({
       name: "resultViews",
-      festivalId: new mongoose.Types.ObjectId(req.tenantId),
-    });
+      });
     const count = countDoc ? countDoc.value : 0;
     res.status(200).json({ success: true, count });
   } catch (error) {
@@ -633,7 +623,7 @@ const getResultCount = async (req, res) => {
 
 const getSettings = async (req, res) => {
   try {
-    const festival = await Festival.findById(req.tenantId);
+    const festival = await Festival.findOne();
     if (!festival) {
       return res.status(404).json({ success: false, message: "Festival not found" });
     }
@@ -654,7 +644,7 @@ const getSettings = async (req, res) => {
 
 const updateSettings = async (req, res) => {
   try {
-    const festival = await Festival.findById(req.tenantId);
+    const festival = await Festival.findOne();
     if (!festival) {
       return res.status(404).json({ success: false, message: "Festival not found" });
     }
@@ -748,7 +738,7 @@ const updateSettings = async (req, res) => {
 
 const regenerateApiKey = async (req, res) => {
   try {
-    const festival = await Festival.findById(req.tenantId);
+    const festival = await Festival.findOne();
     if (!festival) {
       return res.status(404).json({ success: false, message: "Festival not found" });
     }
@@ -770,7 +760,7 @@ const regenerateApiKey = async (req, res) => {
 
 const getExternalCompetitions = async (req, res) => {
   try {
-    const festival = await Festival.findById(req.tenantId);
+    const festival = await Festival.findOne();
     if (!festival) {
       return res.status(404).json({ success: false, message: "Festival not found" });
     }
@@ -795,7 +785,7 @@ const getExternalCompetitions = async (req, res) => {
 
 const getExternalResults = async (req, res) => {
   try {
-    const festival = await Festival.findById(req.tenantId);
+    const festival = await Festival.findOne();
     if (!festival) {
       return res.status(404).json({ success: false, message: "Festival not found" });
     }
@@ -821,7 +811,7 @@ const getExternalResults = async (req, res) => {
 
 const getExternalTeamPoints = async (req, res) => {
   try {
-    const festival = await Festival.findById(req.tenantId);
+    const festival = await Festival.findOne();
     if (!festival) {
       return res.status(404).json({ success: false, message: "Festival not found" });
     }
@@ -864,8 +854,7 @@ const getExternalParticipantDetails = async (req, res) => {
       });
     }
 
-    const festivalId = req.tenantId;
-    const festival = await Festival.findById(festivalId);
+    const festival = await Festival.findOne();
     if (!festival) {
       return res.status(404).json({ success: false, message: "Festival not found" });
     }
@@ -886,7 +875,6 @@ const getExternalParticipantDetails = async (req, res) => {
 
     // Direct local DB lookup — fallback when external API not enabled
     const participant = await Participant.findOne({
-      festivalId,
       chestNumber: { $regex: new RegExp(`^${chestNumber.trim()}$`, "i") },
       dob: dob.trim()
     });
@@ -989,9 +977,9 @@ async function uploadTemplateDynamic(req, res) {
       return res.status(400).json({ success: false, error: "No image uploaded" });
     }
 
-    let existingImages = await ImageData.findOne({ festivalId: req.tenantId });
+    let existingImages = await ImageData.findOne({});
     if (!existingImages) {
-      existingImages = new ImageData({ festivalId: req.tenantId });
+      existingImages = new ImageData({});
     }
 
     const newTemplate = {
@@ -1017,7 +1005,7 @@ async function uploadTemplateDynamic(req, res) {
 async function deleteTemplateDynamic(req, res) {
   try {
     const { templateId } = req.params;
-    const existingImages = await ImageData.findOne({ festivalId: req.tenantId });
+    const existingImages = await ImageData.findOne({});
     if (!existingImages) {
       return res.status(404).json({ success: false, error: "Record not found" });
     }

@@ -14,7 +14,6 @@ const saveNews = async (req, res) => {
       },
       title,
       description,
-      festivalId: req.tenantId,
     });
 
     res.status(201).json({ success: true, data: newNews });
@@ -26,7 +25,7 @@ const saveNews = async (req, res) => {
 
 const getAllNews = async (req, res) => {
   try {
-    const news = await News.find({ festivalId: req.tenantId }).sort({
+    const news = await News.find().sort({
       createdAt: -1,
     });
 
@@ -42,7 +41,7 @@ const deleteNews = async (req, res) => {
     const id = req.params.id;
 
     // Find news in DB scoped to tenant
-    const news = await News.findOne({ _id: id, festivalId: req.tenantId });
+    const news = await News.findOne({ _id: id });
     if (!news)
       return res
         .status(404)
@@ -52,7 +51,7 @@ const deleteNews = async (req, res) => {
     await cloudinary.uploader.destroy(news.image.publicId);
 
     // Delete from MongoDB
-    await News.findOneAndDelete({ _id: id, festivalId: req.tenantId });
+    await News.findOneAndDelete({ _id: id });
 
     res.json({ success: true, message: "News deleted from DB and Cloudinary" });
   } catch (err) {
@@ -63,7 +62,7 @@ const deleteNews = async (req, res) => {
 
 const get3news = async (req, res) => {
   try {
-    const news = await News.find({ festivalId: req.tenantId })
+    const news = await News.find()
       .sort({ createdAt: -1 })
       .limit(3);
 
@@ -78,7 +77,7 @@ const getOneNews = async (req, res) => {
   try {
     const id = req.params.id;
 
-    const news = await News.findOne({ _id: id, festivalId: req.tenantId });
+    const news = await News.findOne({ _id: id });
     if (!news) {
       return res
         .status(404)
@@ -98,7 +97,6 @@ const getRelatedNews = async (req, res) => {
 
     const relatedNews = await News.find({
       _id: { $ne: id },
-      festivalId: req.tenantId,
     })
       .sort({ createdAt: -1 })
       .limit(3);

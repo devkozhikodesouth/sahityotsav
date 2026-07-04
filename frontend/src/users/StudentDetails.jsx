@@ -3,7 +3,7 @@ import axios from "../api/axios";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, Award, CheckCircle, Clock, AwardIcon, Sparkles, User, Calendar, BookOpen } from "lucide-react";
 
-export default function StudentDetails({ festival }) {
+export default function StudentDetails({ festival, bgColor }) {
   const [chestNumber, setChestNumber] = useState("");
   const [dob, setDob] = useState("");
   const [loading, setLoading] = useState(false);
@@ -75,12 +75,12 @@ export default function StudentDetails({ festival }) {
   };
 
   return (
-    <section id="student-details" className="w-full py-24 px-4 md:px-8 bg-background relative overflow-hidden paper-texture border-t border-accent/25">
+    <section id="student-details" className="w-full pt-8 pb-8 md:pt-10 md:pb-10 px-4 md:px-8 bg-background relative overflow-hidden paper-texture border-t border-accent/25" style={{ backgroundColor: bgColor || "#F4EFE3" }}>
       {/* Decorative Ornaments */}
-      <div className="absolute top-6 left-6 w-16 h-16 border-t-2 border-l-2 border-accent/20 pointer-events-none z-10"></div>
-      <div className="absolute top-6 right-6 w-16 h-16 border-t-2 border-r-2 border-accent/20 pointer-events-none z-10"></div>
-      <div className="absolute bottom-6 left-6 w-16 h-16 border-b-2 border-l-2 border-accent/20 pointer-events-none z-10"></div>
-      <div className="absolute bottom-6 right-6 w-16 h-16 border-b-2 border-r-2 border-accent/20 pointer-events-none z-10"></div>
+      <div className="hidden md:block absolute top-6 left-6 w-16 h-16 border-t-2 border-l-2 border-accent/20 pointer-events-none z-10"></div>
+      <div className="hidden md:block absolute top-6 right-6 w-16 h-16 border-t-2 border-r-2 border-accent/20 pointer-events-none z-10"></div>
+      <div className="hidden md:block absolute bottom-6 left-6 w-16 h-16 border-b-2 border-l-2 border-accent/20 pointer-events-none z-10"></div>
+      <div className="hidden md:block absolute bottom-6 right-6 w-16 h-16 border-b-2 border-r-2 border-accent/20 pointer-events-none z-10"></div>
 
       <div className="max-w-5xl mx-auto px-6 relative z-10">
 

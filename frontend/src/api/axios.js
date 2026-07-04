@@ -153,7 +153,6 @@ axiosInstance.interceptors.response.use(
           {},
           {
             withCredentials: true,
-            headers: { "x-tenant-host": window.location.hostname },
           }
         )
         .then(({ data }) => {

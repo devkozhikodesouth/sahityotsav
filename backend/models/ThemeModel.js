@@ -4,7 +4,7 @@ const addDescriptionSchema = new mongoose.Schema({
   festivalId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Festival",
-    required: true,
+    required: false,
   },
   description: {
     type: String,

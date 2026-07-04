@@ -75,10 +75,18 @@ const newsStorage= new CloudinaryStorage({
 })
 const uploadTemplate = multer({ storage: templateStorage });
 const uploadBrochure= multer({storage:bochureStorage})
-const uploadGallery= multer({storage:gallerytorage})
+const galleryMemoryStorage = multer.memoryStorage();
+const uploadGallery = multer({
+  storage: galleryMemoryStorage,
+  limits: { fileSize: 10 * 1024 * 1024 } // 10MB limit per file
+});
 const uploadNews= multer({storage:newsStorage})
 
-const galleryImagesUpload = uploadGallery.single("image");
+const galleryImagesUpload = uploadGallery.fields([
+  { name: "image", maxCount: 1 },
+  { name: "images[]", maxCount: 50 },
+  { name: "images", maxCount: 50 }
+]);
 const newsImagesUpload = uploadNews.single("image");
 
 const templateImagesUpload = uploadTemplate.fields([

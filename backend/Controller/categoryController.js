@@ -11,7 +11,6 @@ const addCategory = async (req, res) => {
 
     const existingCategory = await Category.findOne({
       categoryName,
-      festivalId: req.tenantId,
     });
     if (existingCategory) {
       return res.status(400).json({ message: "Category already exists." });
@@ -19,7 +18,6 @@ const addCategory = async (req, res) => {
 
     const category = new Category({
       categoryName,
-      festivalId: req.tenantId,
     });
     const savedCategory = await category.save();
 
@@ -39,7 +37,6 @@ const deletecategory = async (req, res) => {
 
     const isItemAvailable = await Item.findOne({
       categoryName: categoryId,
-      festivalId: req.tenantId,
     });
     if (isItemAvailable) {
       return res.status(400).json({
@@ -50,7 +47,6 @@ const deletecategory = async (req, res) => {
 
     const deletedCategory = await Category.findOneAndDelete({
       _id: categoryId,
-      festivalId: req.tenantId,
     });
 
     if (!deletedCategory) {
@@ -72,7 +68,6 @@ const editCategoryName = async (req, res) => {
 
     const existingCategory = await Category.findOne({
       categoryName,
-      festivalId: req.tenantId,
     });
     if (existingCategory && existingCategory._id.toString() !== categoryId) {
       return res
@@ -81,7 +76,7 @@ const editCategoryName = async (req, res) => {
     }
 
     const savedCategory = await Category.findOneAndUpdate(
-      { _id: categoryId, festivalId: req.tenantId },
+      { _id: categoryId },
       { categoryName },
       { new: true }
     );
@@ -104,7 +99,7 @@ const editCategoryName = async (req, res) => {
 
 const getCategory = async (req, res) => {
   try {
-    const getCategoryNames = await Category.find({ festivalId: req.tenantId });
+    const getCategoryNames = await Category.find();
     if (getCategoryNames) {
       res.status(200).json({
         data: getCategoryNames,

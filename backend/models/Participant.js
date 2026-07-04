@@ -49,7 +49,7 @@ const ParticipantSchema = new mongoose.Schema(
     festivalId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Festival",
-      required: true
+      required: false
     },
     chestNumber: {
       type: String,
@@ -90,8 +90,8 @@ const ParticipantSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// Composite index: chestNumber must be unique within a single festival
-ParticipantSchema.index({ festivalId: 1, chestNumber: 1 }, { unique: true });
+// Composite index: chestNumber must be unique
+ParticipantSchema.index({ chestNumber: 1 }, { unique: true });
 
 const Participant = mongoose.model("Participant", ParticipantSchema);
 

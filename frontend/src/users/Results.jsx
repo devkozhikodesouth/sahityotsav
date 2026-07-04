@@ -13,7 +13,7 @@ const toNormalCase = (str) => {
     .replace(/\b[a-z]/g, (char) => char.toUpperCase());
 };
 
-function Results({ festival }) {
+function Results({ festival, bgColor }) {
   const [allPublicCompetitions, setAllPublicCompetitions] = useState([]);
   const [category, setCategory] = useState("");
   const [toastData, setTostData] = useState({});
@@ -36,6 +36,7 @@ function Results({ festival }) {
       if (festival.externalApiEnabled) {
         try {
           const responseData = await getProxyCompetitions();
+          console.log(responseData)
           const comps = Array.isArray(responseData) ? responseData : (Array.isArray(responseData.data) ? responseData.data : []);
 
           const uniqueCats = [];
@@ -342,12 +343,12 @@ function Results({ festival }) {
   };
 
   return (
-    <section id="results" className="w-full py-24 px-4 md:px-8 bg-background relative overflow-hidden paper-texture">
+    <section id="results" className="w-full pt-8 pb-8 md:pt-10 md:pb-10 px-4 md:px-8 bg-background relative overflow-hidden paper-texture" style={{ backgroundColor: bgColor || "#FDFBF7" }}>
       {/* Decorative Ornaments */}
-      <div className="absolute top-6 left-6 w-16 h-16 border-t-2 border-l-2 border-accent/20 pointer-events-none z-10"></div>
-      <div className="absolute top-6 right-6 w-16 h-16 border-t-2 border-r-2 border-accent/20 pointer-events-none z-10"></div>
-      <div className="absolute bottom-6 left-6 w-16 h-16 border-b-2 border-l-2 border-accent/20 pointer-events-none z-10"></div>
-      <div className="absolute bottom-6 right-6 w-16 h-16 border-b-2 border-r-2 border-accent/20 pointer-events-none z-10"></div>
+      <div className="hidden md:block absolute top-6 left-6 w-16 h-16 border-t-2 border-l-2 border-accent/20 pointer-events-none z-10"></div>
+      <div className="hidden md:block absolute top-6 right-6 w-16 h-16 border-t-2 border-r-2 border-accent/20 pointer-events-none z-10"></div>
+      <div className="hidden md:block absolute bottom-6 left-6 w-16 h-16 border-b-2 border-l-2 border-accent/20 pointer-events-none z-10"></div>
+      <div className="hidden md:block absolute bottom-6 right-6 w-16 h-16 border-b-2 border-r-2 border-accent/20 pointer-events-none z-10"></div>
 
       <div className="max-w-7xl mx-auto relative z-10">
         <motion.div

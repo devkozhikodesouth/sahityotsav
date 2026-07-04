@@ -67,17 +67,27 @@ function UserSide({ festival, onOpenMenu }) {
     return features.some((feature) => feature.name === key && feature.enabled);
   };
 
+  // Filter only active features
+  const activeFeatures = Object.entries(featureComponents).filter(([key]) => isFeatureEnabled(key));
+  let alternatingIndex = 0;
+
   return (
     <>
       <Home festival={festival} onOpenMenu={onOpenMenu} />
-      <div>
-        {Object.entries(featureComponents).map(([key, Component], index) => {
-          if (!isFeatureEnabled(key)) return null;
+      <div id="user-sections-container">
+        {activeFeatures.map(([key, Component]) => {
+          const isLive = key === "live";
+          const isEven = alternatingIndex % 2 === 0;
+          if (!isLive) {
+            alternatingIndex++;
+          }
+          
+          const bgColor = isLive ? undefined : (isEven ? "#F4EFE3" : "#FDFBF7");
+          const styledComponent = React.cloneElement(Component, { bgColor });
           
           return (
             <React.Fragment key={key}>
-              {Component}
-              
+              {styledComponent}
             </React.Fragment>
           );
         })}

@@ -5,7 +5,7 @@ const newsSchema = new mongoose.Schema(
     festivalId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Festival",
-      required: true,
+      required: false,
     },
     image: {
       path: {

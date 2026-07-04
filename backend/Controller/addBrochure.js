@@ -4,7 +4,7 @@ const cloudinary = require("../util/cloudinary");
 
 const addBrochure = async (req, res) => {
   try {
-    const brochureData = await Brochure.findOne({ festivalId: req.tenantId });
+    const brochureData = await Brochure.findOne();
     const brochures = ["image1", "image2", "image3"];
     if (brochureData) {
       for (const field of brochures) {
@@ -30,7 +30,7 @@ const addBrochure = async (req, res) => {
       await brochureData.save();
       return res.status(200).json({ message: "Brochure updated successfully" });
     } else {
-      const newBrochure = { festivalId: req.tenantId };
+      const newBrochure = {};
       for (const field of brochures) {
         if (req.files[field]) {
           const file = req.files[field][0];
@@ -53,7 +53,7 @@ const addBrochure = async (req, res) => {
 
 const getBrochuse = async (req, res) => {
   try {
-    const getBrochuseData = await Brochure.findOne({ festivalId: req.tenantId });
+    const getBrochuseData = await Brochure.findOne();
     return res
       .status(200)
       .json({ message: "Data fetched successfully", data: getBrochuseData });
@@ -66,7 +66,7 @@ const getBrochuse = async (req, res) => {
 const addDescription = async (req, res) => {
   try {
     const { description } = req.body;
-    let descriptionData = await Description.findOne({ festivalId: req.tenantId });
+    let descriptionData = await Description.findOne();
 
     if (descriptionData) {
       descriptionData.description = description;
@@ -74,7 +74,6 @@ const addDescription = async (req, res) => {
     } else {
       descriptionData = new Description({
         description,
-        festivalId: req.tenantId,
       });
       await descriptionData.save();
     }
@@ -90,7 +89,7 @@ const addDescription = async (req, res) => {
 
 const getDescription = async (req, res) => {
   try {
-    const descriptionData = await Description.findOne({ festivalId: req.tenantId });
+    const descriptionData = await Description.findOne();
     if (!descriptionData) {
       return res.status(200).json({
         message: "No theme description available",

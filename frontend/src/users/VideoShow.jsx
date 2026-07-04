@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { PlayCircle, Maximize2, ArrowRight } from "lucide-react";
 
-function VideoShow() {
+function VideoShow({ bgColor }) {
   const [savedLink, setSavedLink] = useState([]);
   const iframeRefs = useRef([]);
   const navigate = useNavigate();
@@ -63,12 +63,12 @@ function VideoShow() {
   };
 
   return (
-    <section id="videos" className="w-full py-24 bg-background relative overflow-hidden paper-texture">
+    <section id="videos" className="w-full pt-12 pb-8 md:pt-16 md:pb-10 bg-background relative overflow-hidden paper-texture" style={{ backgroundColor: bgColor || "#F4EFE3" }}>
       {/* Decorative Ornaments */}
-      <div className="absolute top-6 left-6 w-16 h-16 border-t-2 border-l-2 border-accent/20 pointer-events-none z-10"></div>
-      <div className="absolute top-6 right-6 w-16 h-16 border-t-2 border-r-2 border-accent/20 pointer-events-none z-10"></div>
-      <div className="absolute bottom-6 left-6 w-16 h-16 border-b-2 border-l-2 border-accent/20 pointer-events-none z-10"></div>
-      <div className="absolute bottom-6 right-6 w-16 h-16 border-b-2 border-r-2 border-accent/20 pointer-events-none z-10"></div>
+      <div className="hidden md:block absolute top-6 left-6 w-16 h-16 border-t-2 border-l-2 border-accent/20 pointer-events-none z-10"></div>
+      <div className="hidden md:block absolute top-6 right-6 w-16 h-16 border-t-2 border-r-2 border-accent/20 pointer-events-none z-10"></div>
+      <div className="hidden md:block absolute bottom-6 left-6 w-16 h-16 border-b-2 border-l-2 border-accent/20 pointer-events-none z-10"></div>
+      <div className="hidden md:block absolute bottom-6 right-6 w-16 h-16 border-b-2 border-r-2 border-accent/20 pointer-events-none z-10"></div>
 
       <div className="max-w-7xl mx-auto px-4 md:px-8 relative z-10">
         <motion.div
