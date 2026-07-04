@@ -6,6 +6,13 @@ import toast, { Toaster } from "react-hot-toast";
 import { motion, AnimatePresence } from "framer-motion";
 import { Trophy, Medal, Star } from "lucide-react";
 
+const toNormalCase = (str) => {
+  if (!str) return "";
+  return String(str)
+    .toLowerCase()
+    .replace(/\b[a-z]/g, (char) => char.toUpperCase());
+};
+
 function Results({ festival }) {
   const [allPublicCompetitions, setAllPublicCompetitions] = useState([]);
   const [category, setCategory] = useState("");
@@ -453,8 +460,8 @@ function Results({ festival }) {
                         <div className="space-y-3">
                           {place.winners.map((winner, winnerIdx) => (
                             <div key={winnerIdx} className="mb-2 last:mb-0">
-                              <p className="text-lg font-biorhyme font-bold text-primary leading-tight break-words">{winner.name}</p>
-                              <p className="text-xs font-serif font-medium text-accent mt-1">{winner.teamId?.teamName || winner.team}</p>
+                              <p className="text-lg font-biorhyme font-bold text-primary leading-tight break-words">{toNormalCase(winner.name)}</p>
+                              <p className="text-xs font-serif font-medium text-accent mt-1">{toNormalCase(winner.teamId?.teamName || winner.team)}</p>
                             </div>
                           ))}
                         </div>

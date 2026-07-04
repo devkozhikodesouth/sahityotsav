@@ -2,6 +2,13 @@ import React, { useRef, useState, useEffect } from "react";
 import html2canvas from "html2canvas";
 import toast from "react-hot-toast";
 
+const toNormalCase = (str) => {
+  if (!str) return "";
+  return String(str)
+    .toLowerCase()
+    .replace(/\b[a-z]/g, (char) => char.toUpperCase());
+};
+
 function ImageDownload({ results, category, item, color, image, positions, activeAd }) {
   const downloadImageRef = useRef(null);
   const containerRef = useRef(null);
@@ -105,19 +112,19 @@ function ImageDownload({ results, category, item, color, image, positions, activ
                       className={`montserrat-semibold ${color}`}
                       style={{ fontSize: `${10 * scale}px` }}
                     >
-                      {category}
+                      {toNormalCase(category)}
                     </div>
                     <div 
-                      className={`montserrat-bold ${color}`}
-                      style={{ fontSize: `${15 * scale}px`, marginTop: `${-6 * scale}px` }}
+                      className={`font-fractul ${color}`}
+                      style={{ fontSize: `${12 * scale}px`, marginTop: `${-3 * scale}px` }}
                     >
-                      {item}
+                      {toNormalCase(item)}
                     </div>
                   </div>
 
                   <div 
                     className="text-start"
-                    style={{ marginTop: `${10 * scale}px`, paddingLeft: `${10 * scale}px` }}
+                    style={{ marginTop: `${10 * scale}px`, paddingLeft: `${1 * scale}px` }}
                   >
                     {results?.result?.map((result, index) => {
                       let winners = [];
@@ -129,24 +136,56 @@ function ImageDownload({ results, category, item, color, image, positions, activ
                         if (name) winners = [{ name, team }];
                       }
 
+                      const rankNum = result.position || (index + 1);
+                      const activeWinners = winners.filter(w => w.name || w.team || w.teamId?.teamName);
+
                       return (
-                        <div key={index} style={{ marginBottom: `${6 * scale}px` }}>
-                          {winners.map((winner, wIdx) => (
-                            <div key={wIdx} style={{ marginTop: wIdx > 0 ? `${4 * scale}px` : "0px" }}>
+                        <div key={index} style={{ marginBottom: `${10 * scale}px` }}>
+                          {activeWinners.map((winner, wIdx) => {
+                            const nameText = winner.name ? toNormalCase(winner.name) : "";
+                            const teamText = toNormalCase(winner.teamId?.teamName || winner.team || "");
+
+                            return (
                               <div 
-                                className={`leading-tight font-biorhyme font-bold ${color}`}
-                                style={{ fontSize: `${12 * scale}px` }}
+                                key={wIdx} 
+                                style={{ 
+                                  display: "flex", 
+                                  alignItems: "flex-start", 
+                                  gap: `${6 * scale}px`, 
+                                  marginTop: wIdx > 0 ? `${4 * scale}px` : "0px" 
+                                }}
                               >
-                                {winner.name || ""}
+                                {/* Left Side: Rank Number */}
+                                <div 
+                                  className={`leading-tight font-biorhyme font-bold ${color}`}
+                                  style={{ 
+                                    fontSize: `${12 * scale}px`, 
+                                    minWidth: `${14 * scale}px`, 
+                                    textAlign: "right" 
+                                  }}
+                                >
+                                  {rankNum}.
+                                </div>
+                                {/* Right Side: Name & Team Details */}
+                                <div style={{ display: "flex", flexDirection: "column" }}>
+                                  <div 
+                                    className={`leading-tight font-fractul font-bold ${color}`}
+                                    style={{ fontSize: `${12 * scale}px` }}
+                                  >
+                                    {nameText || teamText}
+                                  </div>
+                                  {nameText && teamText && (
+                                    <div 
+                                      className={`leading-tight font-fractul-regular ${color}`}
+                                      style={{ fontSize: `${8 * scale}px`, marginTop: `${-1 * scale}px` }}
+                                    >
+                                      {teamText}
+                                    </div>
+                                  )}
+                                </div>
                               </div>
-                              <div 
-                                className={`leading-tight montserrat-regular ${color}`}
-                                style={{ fontSize: `${10 * scale}px` }}
-                              >
-                                {winner.teamId?.teamName || winner.team || ""}
-                              </div>
-                            </div>
-                          ))}
+                            );
+                          })}
                         </div>
                       );
                     })}
