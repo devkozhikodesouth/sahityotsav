@@ -19,6 +19,9 @@ function Results({ festival }) {
   const [images, setImages] = useState([null, null, null]);
   const [color, setColor] = useState([null, null, null]);
   const [positions, setPositions] = useState([null, null, null]);
+  const [templateMode, setTemplateMode] = useState("fixed");
+  const [templateRules, setTemplateRules] = useState([]);
+  const [dynamicTemplates, setDynamicTemplates] = useState([]);
 
   useEffect(() => {
     if (!festival) return;
@@ -73,12 +76,47 @@ function Results({ festival }) {
           data?.image2?.positions || null,
           data?.image3?.positions || null,
         ]);
+        setTemplateMode(data?.templateMode || "fixed");
+        setTemplateRules(data?.templateRules || []);
+        setDynamicTemplates(data?.templates || []);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
     };
     fetchData();
   }, []);
+
+  const getActiveTemplates = () => {
+    if (templateMode === "fixed") {
+      return [
+        {
+          image: images[0],
+          color: color[0],
+          positions: positions[0]
+        },
+        {
+          image: images[1],
+          color: color[1],
+          positions: positions[1]
+        },
+        {
+          image: images[2],
+          color: color[2],
+          positions: positions[2]
+        }
+      ];
+    }
+
+    if (resultNumber === null || resultNumber === undefined || dynamicTemplates.length === 0) {
+      return dynamicTemplates.length > 0 ? [dynamicTemplates[0]] : [];
+    }
+
+    const matchedTemplate = dynamicTemplates.find(t => {
+      return resultNumber >= t.minResultNumber && resultNumber <= t.maxResultNumber;
+    });
+
+    return matchedTemplate ? [matchedTemplate] : (dynamicTemplates.length > 0 ? [dynamicTemplates[0]] : []);
+  };
 
   useEffect(() => {
     const fetchAds = async () => {
@@ -400,16 +438,23 @@ function Results({ festival }) {
               </div>
 
               {/* Download Cards */}
-              <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {[0, 1, 2].map((idx) => (
+              <motion.div 
+                variants={itemVariants} 
+                className={`grid gap-8 ${
+                  getActiveTemplates().length === 1 
+                    ? "grid-cols-1 max-w-md mx-auto" 
+                    : "grid-cols-1 md:grid-cols-3"
+                }`}
+              >
+                {getActiveTemplates().map((tpl, idx) => (
                   <div key={idx} className="bg-surface rounded-2xl p-4 shadow-md overflow-hidden group hover:shadow-lg transition-shadow border border-accent/20">
                     <ImageDownlad
                       results={results}
-                      positions={positions[idx]}
+                      positions={tpl.positions}
                       category={results?.category?.categoryName}
                       item={results?.item?.itemName}
-                      image={images[idx]}
-                      color={color[idx]}
+                      image={tpl.image}
+                      color={tpl.color}
                       activeAd={getFilteredAd(resultNumber)}
                     />
                   </div>

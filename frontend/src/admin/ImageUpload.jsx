@@ -3,9 +3,9 @@ import axios from 'axios';
 import Draggable from 'react-draggable';
 import toast, { Toaster } from 'react-hot-toast';
 import { baseUrl } from '../api/cateGoryAnditem';
-import {  ImageUploadServer } from '../api/apiCall';
+import { ImageUploadServer, uploadTemplateDynamic, deleteTemplateDynamic } from '../api/apiCall';
 import { motion } from 'framer-motion';
-import { Image as ImageIcon, UploadCloud, Move, Palette, CheckCircle2, ArrowLeft } from 'lucide-react';
+import { Image as ImageIcon, UploadCloud, Move, Palette, CheckCircle2, ArrowLeft, Plus, Trash2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { BarLoader } from 'react-spinners';
 
@@ -19,6 +19,10 @@ const ImageUpload = () => {
   const [files, setFiles] = useState([null, null, null]);
   const [color, setColor] = useState(['text-black', 'text-black', 'text-black']);
   const [positions, setPositions] = useState([{ x: 45, y: 140 }, { x: 45, y: 140 }, { x: 45, y: 140 }]);
+  
+  // Template modes state
+  const [templateMode, setTemplateMode] = useState("fixed");
+  const [dynamicTemplates, setDynamicTemplates] = useState([]);
 
   useEffect(() => {
     async function fetchData() {
@@ -45,6 +49,8 @@ const ImageUpload = () => {
         setImages(newImages);
         setColor(newColor);
         setPositions(newPositions);
+        setTemplateMode(data?.templateMode || "fixed");
+        setDynamicTemplates(data?.templates || []);
       } catch (error) {
         console.error("Error fetching data:", error);
       } finally {
@@ -77,19 +83,127 @@ const ImageUpload = () => {
     setColor(updated);
   };
 
+  const handleDynamicColorChange = (index, newColor) => {
+    const updated = [...dynamicTemplates];
+    updated[index].color = newColor;
+    setDynamicTemplates(updated);
+  };
+
+  const handleDynamicDragStop = (index, data) => {
+    const updated = [...dynamicTemplates];
+    updated[index].positions = { x: data.x, y: data.y };
+    setDynamicTemplates(updated);
+  };
+
+  const handleDynamicRangeChange = (index, field, value) => {
+    const updated = [...dynamicTemplates];
+    updated[index][field] = value ? Number(value) : "";
+    setDynamicTemplates(updated);
+  };
+
+  const handleDynamicTemplateDelete = async (templateId) => {
+    if (!window.confirm("Are you sure you want to delete this template?")) return;
+    toast.loading("Deleting template...");
+    try {
+      const res = await deleteTemplateDynamic(templateId);
+      if (res.success) {
+        toast.dismiss();
+        toast.success("Template deleted! 🗑️");
+        setDynamicTemplates(res.data?.templates || []);
+      }
+    } catch (err) {
+      toast.dismiss();
+      toast.error("Deletion failed.");
+    }
+  };
+
+  const handleDynamicTemplateUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const formData = new FormData();
+    formData.append("image", file);
+    toast.loading("Uploading template...");
+    try {
+      const res = await uploadTemplateDynamic(formData);
+      if (res.success) {
+        toast.dismiss();
+        toast.success("Template uploaded successfully! 🚀");
+        setDynamicTemplates(res.allTemplates);
+      }
+    } catch (err) {
+      toast.dismiss();
+      toast.error("Upload failed.");
+    }
+  };
+
+  const checkOverlaps = () => {
+    for (let i = 0; i < dynamicTemplates.length; i++) {
+      for (let j = i + 1; j < dynamicTemplates.length; j++) {
+        const t1 = dynamicTemplates[i];
+        const t2 = dynamicTemplates[j];
+        if (t1.minResultNumber && t1.maxResultNumber && t2.minResultNumber && t2.maxResultNumber) {
+          const min1 = Number(t1.minResultNumber);
+          const max1 = Number(t1.maxResultNumber);
+          const min2 = Number(t2.minResultNumber);
+          const max2 = Number(t2.maxResultNumber);
+          if (min1 <= max2 && max1 >= min2) {
+            return `Overlap detected between Template ${i + 1} and Template ${j + 1}!`;
+          }
+        }
+      }
+    }
+    return null;
+  };
+
+  const getGapsWarning = () => {
+    const active = dynamicTemplates.filter(t => t.minResultNumber && t.maxResultNumber);
+    if (active.length === 0) return null;
+    const sorted = [...active].sort((a, b) => Number(a.minResultNumber) - Number(b.minResultNumber));
+    const gaps = [];
+    if (Number(sorted[0].minResultNumber) > 1) {
+      gaps.push(`Ranks 1 to ${Number(sorted[0].minResultNumber) - 1}`);
+    }
+    for (let i = 0; i < sorted.length - 1; i++) {
+      if (Number(sorted[i].maxResultNumber) + 1 < Number(sorted[i+1].minResultNumber)) {
+        gaps.push(`Ranks ${Number(sorted[i].maxResultNumber) + 1} to ${Number(sorted[i+1].minResultNumber) - 1}`);
+      }
+    }
+    return gaps.length > 0 ? `Warning: No templates configured for ${gaps.join(", ")}.` : null;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData();
-    files.forEach((file, index) => {
-      if (file) {
-        formData.append(`image${index + 1}`, file);
+
+    if (templateMode === "fixed") {
+      files.forEach((file, index) => {
+        if (file) {
+          formData.append(`image${index + 1}`, file);
+        }
+      });
+      formData.append('color', JSON.stringify(color));
+      formData.append('positions', JSON.stringify(positions));
+    } else {
+      const overlapError = checkOverlaps();
+      if (overlapError) {
+        toast.error(overlapError);
+        return;
       }
-    });
+      
+      for (let i = 0; i < dynamicTemplates.length; i++) {
+        const t = dynamicTemplates[i];
+        if (Number(t.minResultNumber) > Number(t.maxResultNumber)) {
+          toast.error(`Template ${i + 1}: Start range cannot be greater than end range.`);
+          return;
+        }
+      }
 
-    formData.append('color', JSON.stringify(color));
-    formData.append('positions', JSON.stringify(positions));
+      formData.append('templatesMetadata', JSON.stringify(dynamicTemplates));
+    }
 
-    toast.loading('Publishing Posters...');
+    formData.append('templateMode', templateMode);
+
+    toast.loading('Publishing Templates...');
     try {
       const response = await ImageUploadServer(formData);
 
@@ -143,106 +257,280 @@ const ImageUpload = () => {
             transition={{ delay: 0.1 }}
             className="bg-white rounded-[2rem] shadow-sm border border-gray-100 p-8"
           >
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-              {images.map((img, index) => (
-                <div key={index} className="flex flex-col space-y-6">
-                  
-                  {/* Image Preview Container */}
-                  <div className="relative w-full aspect-square rounded-3xl border-2 border-dashed border-gray-300 hover:border-pink-500 bg-gray-100 overflow-hidden shadow-inner group">
-                    <div className="absolute top-4 left-4 z-10 px-3 py-1 bg-black/60 backdrop-blur-md rounded-full text-white text-xs font-bold uppercase tracking-wider">
-                      Template {index + 1}
-                    </div>
+            {/* Mode Selection Toggle */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-gray-50 border border-gray-200 p-6 rounded-2xl mb-8">
+              <div>
+                <h3 className="text-md font-bold text-gray-800">Template Selection Mode</h3>
+                <p className="text-xs text-gray-500 mt-0.5 font-medium">Choose how templates are assigned to result card layouts.</p>
+              </div>
+              <div className="flex items-center gap-3 bg-white p-1.5 rounded-xl border border-gray-200 shadow-sm shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setTemplateMode("fixed")}
+                  className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${
+                    templateMode === "fixed"
+                      ? "bg-pink-600 text-white shadow-sm shadow-pink-600/10"
+                      : "text-gray-600 hover:text-gray-900"
+                  }`}
+                >
+                  Fixed Mode (3 templates)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setTemplateMode("countBased")}
+                  className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${
+                    templateMode === "countBased"
+                      ? "bg-pink-600 text-white shadow-sm shadow-pink-600/10"
+                      : "text-gray-600 hover:text-gray-900"
+                  }`}
+                >
+                  Count-Based Mode (Dynamic Ranks)
+                </button>
+              </div>
+            </div>
 
-                    <img
-                      src={img || dummy}
-                      alt={`Poster ${index + 1}`}
-                      className="object-cover w-full h-full"
-                    />
-                    
-                    {/* Draggable Text Overlay */}
-                    <Draggable
-                      bounds="parent"
-                      defaultPosition={positions[index]}
-                      onStop={(e, data) => {
-                        const updatedPositions = [...positions];
-                        updatedPositions[index] = { x: data.x, y: data.y };
-                        setPositions(updatedPositions);
-                      }}
-                    >
-                      <div className="absolute top-0 left-0 p-2 cursor-move z-20 flex flex-col hover:ring-2 hover:ring-white/50 rounded transition-all">
-                        <div className={`text-[10px] font-semibold ${color[index]}`}>
-                          Category Name
-                        </div>
-                        <div className={`text-[15px] font-bold -mt-[6px] ${color[index]}`}>
-                          Item Name
-                        </div>
-
-                        <div className="mt-2 pl-[10px] text-start">
-                          {[...Array(3)].map((_, idx) => (
-                            <div key={idx}>
-                              <div className={`text-[12px] font-bold ${color[index]}`}>
-                                Participants Name
-                              </div>
-                              <div className={`text-[10px] -mt-[5px] mb-[6px] ${color[index]}`}>
-                                Participants Team
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                        <div className="absolute -top-3 -right-3 opacity-0 group-hover:opacity-100 bg-white text-black p-1 rounded-full shadow-lg pointer-events-none transition-opacity">
-                          <Move size={12} />
-                        </div>
+            {templateMode === "fixed" ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+                {images.map((img, index) => (
+                  <div key={index} className="flex flex-col space-y-6">
+                    {/* Image Preview Container */}
+                    <div className="relative w-full aspect-square rounded-3xl border-2 border-dashed border-gray-300 hover:border-pink-500 bg-gray-100 overflow-hidden shadow-inner group">
+                      <div className="absolute top-4 left-4 z-10 px-3 py-1 bg-black/60 backdrop-blur-md rounded-full text-white text-xs font-bold uppercase tracking-wider">
+                        Template {index + 1}
                       </div>
-                    </Draggable>
-                    
-                    {/* Overlay for clicking */}
-                    <div 
-                      onClick={() => handleImageClick(index)}
-                      className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer z-10"
-                    >
-                      <p className="text-white font-semibold flex items-center gap-2">
-                        <UploadCloud size={24}/> Change Template
-                      </p>
+
+                      <img
+                        src={img || dummy}
+                        alt={`Poster ${index + 1}`}
+                        className="object-cover w-full h-full"
+                      />
+                      
+                      {/* Draggable Text Overlay */}
+                      <Draggable
+                        bounds="parent"
+                        defaultPosition={positions[index]}
+                        onStop={(e, data) => {
+                          const updatedPositions = [...positions];
+                          updatedPositions[index] = { x: data.x, y: data.y };
+                          setPositions(updatedPositions);
+                        }}
+                      >
+                        <div className="absolute top-0 left-0 p-2 cursor-move z-20 flex flex-col hover:ring-2 hover:ring-white/50 rounded transition-all">
+                          <div className={`text-[10px] font-semibold ${color[index]}`}>
+                            Category Name
+                          </div>
+                          <div className={`text-[15px] font-bold -mt-[6px] ${color[index]}`}>
+                            Item Name
+                          </div>
+
+                          <div className="mt-2 pl-[10px] text-start">
+                            {[...Array(3)].map((_, idx) => (
+                              <div key={idx}>
+                                <div className={`text-[12px] font-bold ${color[index]}`}>
+                                  Participants Name
+                                </div>
+                                <div className={`text-[10px] -mt-[5px] mb-[6px] ${color[index]}`}>
+                                  Participants Team
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                          <div className="absolute -top-3 -right-3 opacity-0 group-hover:opacity-100 bg-white text-black p-1 rounded-full shadow-lg pointer-events-none transition-opacity">
+                            <Move size={12} />
+                          </div>
+                        </div>
+                      </Draggable>
+                      
+                      {/* Overlay for clicking */}
+                      <div 
+                        onClick={() => handleImageClick(index)}
+                        className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer z-10"
+                      >
+                        <p className="text-white font-semibold flex items-center gap-2">
+                          <UploadCloud size={24}/> Change Template
+                        </p>
+                      </div>
+
+                      <input
+                        type="file"
+                        id={`fileInput${index}`}
+                        hidden
+                        accept="image/*"
+                        onChange={(e) => handleImageUpload(e, index)}
+                      />
                     </div>
 
+                    {/* Controls */}
+                    <div className="bg-gray-50 rounded-2xl p-5 border border-gray-100 space-y-4">
+                      <div className="flex items-center justify-between">
+                        <label className="text-sm font-bold text-gray-700 flex items-center gap-2">
+                          <Palette size={16} /> Text Color
+                        </label>
+                        <button
+                          type="button"
+                          onClick={() => handleColorChange(index, color[index] === "text-white" ? "text-black" : "text-white")}
+                          className={`px-4 py-2 rounded-lg text-sm font-bold border transition-colors ${
+                            color[index] === "text-white" ? "bg-black text-white border-black hover:bg-gray-800" : "bg-white text-black border-gray-300 hover:bg-gray-50"
+                          }`}
+                        >
+                          {color[index] === "text-white" ? "White Text" : "Black Text"}
+                        </button>
+                      </div>
+                      <div className="text-xs text-gray-500 font-medium leading-relaxed">
+                        <span className="flex items-start gap-2"><Move size={14} className="shrink-0 mt-0.5"/> Drag the dummy text block to position where results should appear on the poster.</span>
+                      </div>
+                      {files[index] && (
+                        <p className="text-xs text-pink-600 font-semibold truncate bg-pink-50 p-2 rounded-lg">
+                          New: {files[index].name}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              // Dynamic Unlimited Template Manager
+              <div className="space-y-8">
+                {/* Upload Button Card */}
+                <div className="flex items-center justify-between bg-gray-50 p-6 rounded-2xl border border-gray-150">
+                  <div>
+                    <h3 className="text-lg font-bold text-gray-800">Dynamic Templates ({dynamicTemplates.length})</h3>
+                    <p className="text-xs text-gray-500 font-medium mt-0.5">Upload templates and configure overlays for count-based results.</p>
+                  </div>
+                  <label className="flex items-center gap-2 bg-pink-600 hover:bg-pink-700 text-white font-bold py-2.5 px-6 rounded-xl text-sm transition cursor-pointer shadow-md shadow-pink-600/10 shrink-0 select-none">
+                    <Plus size={18} /> Upload New Template
                     <input
                       type="file"
-                      id={`fileInput${index}`}
-                      hidden
                       accept="image/*"
-                      onChange={(e) => handleImageUpload(e, index)}
+                      hidden
+                      onChange={handleDynamicTemplateUpload}
                     />
-                  </div>
-
-                  {/* Controls */}
-                  <div className="bg-gray-50 rounded-2xl p-5 border border-gray-100 space-y-4">
-                    <div className="flex items-center justify-between">
-                      <label className="text-sm font-bold text-gray-700 flex items-center gap-2">
-                        <Palette size={16} /> Text Color
-                      </label>
-                      <button
-                        type="button"
-                        onClick={() => handleColorChange(index, color[index] === "text-white" ? "text-black" : "text-white")}
-                        className={`px-4 py-2 rounded-lg text-sm font-bold border transition-colors ${
-                          color[index] === "text-white" ? "bg-black text-white border-black hover:bg-gray-800" : "bg-white text-black border-gray-300 hover:bg-gray-50"
-                        }`}
-                      >
-                        {color[index] === "text-white" ? "White Text" : "Black Text"}
-                      </button>
-                    </div>
-                    <div className="text-xs text-gray-500 font-medium leading-relaxed">
-                      <span className="flex items-start gap-2"><Move size={14} className="shrink-0 mt-0.5"/> Drag the dummy text block to position where results should appear on the poster.</span>
-                    </div>
-                    {files[index] && (
-                      <p className="text-xs text-pink-600 font-semibold truncate bg-pink-50 p-2 rounded-lg">
-                        New: {files[index].name}
-                      </p>
-                    )}
-                  </div>
-
+                  </label>
                 </div>
-              ))}
-            </div>
+
+                {dynamicTemplates.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-20 text-center space-y-3 bg-gray-50 rounded-3xl border-2 border-dashed border-gray-300 p-8">
+                    <ImageIcon size={48} className="text-gray-400" />
+                    <p className="text-gray-700 font-bold text-sm">No dynamic templates uploaded yet.</p>
+                    <p className="text-gray-500 text-xs max-w-sm">Click "Upload New Template" to upload your first certificate design for dynamic rules mapping.</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+                    {dynamicTemplates.map((tpl, index) => (
+                      <div key={tpl._id} className="flex flex-col space-y-6">
+                        {/* Image Preview Container */}
+                        <div className="relative w-full aspect-square rounded-3xl border border-gray-200 bg-gray-100 overflow-hidden shadow-inner group">
+                          <div className="absolute top-4 left-4 z-10 px-3 py-1 bg-black/60 backdrop-blur-md rounded-full text-white text-xs font-bold uppercase tracking-wider">
+                            Template {index + 1}
+                          </div>
+
+                          <img
+                            src={tpl.image}
+                            alt={`Dynamic Template ${index + 1}`}
+                            className="object-cover w-full h-full"
+                          />
+                          
+                          {/* Draggable Text Overlay */}
+                          <Draggable
+                            bounds="parent"
+                            defaultPosition={tpl.positions || { x: 45, y: 140 }}
+                            onStop={(e, data) => handleDynamicDragStop(index, data)}
+                          >
+                            <div className="absolute top-0 left-0 p-2 cursor-move z-20 flex flex-col hover:ring-2 hover:ring-white/50 rounded transition-all">
+                              <div className={`text-[10px] font-semibold ${tpl.color || "text-black"}`}>
+                                Category Name
+                              </div>
+                              <div className={`text-[15px] font-bold -mt-[6px] ${tpl.color || "text-black"}`}>
+                                Item Name
+                              </div>
+
+                              <div className="mt-2 pl-[10px] text-start">
+                                {[...Array(3)].map((_, idx) => (
+                                  <div key={idx}>
+                                    <div className={`text-[12px] font-bold ${tpl.color || "text-black"}`}>
+                                      Participants Name
+                                    </div>
+                                    <div className={`text-[10px] -mt-[5px] mb-[6px] ${tpl.color || "text-black"}`}>
+                                      Participants Team
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                              <div className="absolute -top-3 -right-3 opacity-0 group-hover:opacity-100 bg-white text-black p-1 rounded-full shadow-lg pointer-events-none transition-opacity">
+                                <Move size={12} />
+                              </div>
+                            </div>
+                          </Draggable>
+                        </div>
+
+                        {/* Controls */}
+                        <div className="bg-gray-50 rounded-2xl p-5 border border-gray-100 space-y-4">
+                          <div className="flex items-center justify-between">
+                            <label className="text-sm font-bold text-gray-700 flex items-center gap-2">
+                              <Palette size={16} /> Text Color
+                            </label>
+                            <button
+                              type="button"
+                              onClick={() => handleDynamicColorChange(index, tpl.color === "text-white" ? "text-black" : "text-white")}
+                              className={`px-4 py-2 rounded-lg text-sm font-bold border transition-colors ${
+                                tpl.color === "text-white" ? "bg-black text-white border-black hover:bg-gray-800" : "bg-white text-black border-gray-300 hover:bg-gray-50"
+                              }`}
+                            >
+                              {tpl.color === "text-white" ? "White Text" : "Black Text"}
+                            </button>
+                          </div>
+
+                          {/* Dynamic range inputs */}
+                          <div className="grid grid-cols-2 gap-3 pt-3 border-t border-gray-200">
+                            <div>
+                              <label className="text-[10px] font-bold text-gray-500 uppercase block mb-1">Min Rank</label>
+                              <input
+                                type="number"
+                                min="1"
+                                placeholder="Min Rank"
+                                value={tpl.minResultNumber || ""}
+                                onChange={(e) => handleDynamicRangeChange(index, "minResultNumber", e.target.value)}
+                                className="w-full px-3 py-1.5 bg-white border border-gray-300 rounded-lg text-xs font-semibold focus:outline-none focus:border-pink-500"
+                              />
+                            </div>
+                            <div>
+                              <label className="text-[10px] font-bold text-gray-500 uppercase block mb-1">Max Rank</label>
+                              <input
+                                type="number"
+                                min="1"
+                                placeholder="Max Rank"
+                                value={tpl.maxResultNumber || ""}
+                                onChange={(e) => handleDynamicRangeChange(index, "maxResultNumber", e.target.value)}
+                                className="w-full px-3 py-1.5 bg-white border border-gray-300 rounded-lg text-xs font-semibold focus:outline-none focus:border-pink-500"
+                              />
+                            </div>
+                          </div>
+
+                          <div className="text-xs text-gray-500 font-medium leading-relaxed border-b border-gray-200 pb-3">
+                            <span className="flex items-start gap-2"><Move size={14} className="shrink-0 mt-0.5"/> Drag overlay text block to configure rendering offset positions.</span>
+                          </div>
+                          
+                          <button
+                            type="button"
+                            onClick={() => handleDynamicTemplateDelete(tpl._id)}
+                            className="w-full flex items-center justify-center gap-1.5 py-2 px-4 rounded-xl text-xs font-bold bg-red-50 text-red-600 hover:bg-red-100 transition"
+                          >
+                            <Trash2 size={14} /> Delete Template
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {templateMode === "countBased" && getGapsWarning() && (
+              <div className="bg-amber-50 border border-amber-200 text-amber-800 px-4 py-3 rounded-xl text-xs font-semibold flex items-center gap-2 mt-6">
+                <span className="shrink-0 text-amber-500 font-bold text-lg">⚠️</span>
+                {getGapsWarning()}
+              </div>
+            )}
 
             <div className="flex justify-end pt-10 border-t border-gray-100 mt-10">
               <button

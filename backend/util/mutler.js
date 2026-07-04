@@ -121,13 +121,16 @@ const adsStorage = new CloudinaryStorage({
 const uploadAds = multer({ storage: adsStorage });
 const adsImageUpload = uploadAds.single("image");
 
+const templateSingleUpload = uploadTemplate.single("image");
+
 module.exports={
     templateImagesUpload,
     brochureImageUpload,
     galleryImagesUpload,
     newsImagesUpload,
     settingsImagesUpload,
-    adsImageUpload
+    adsImageUpload,
+    templateSingleUpload
 }
 
 

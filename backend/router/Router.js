@@ -100,6 +100,8 @@ adminRouter.get("/startprogram", dataController.startProgram);
 adminRouter.get("/stopprogram", dataController.stopProgram);
 adminRouter.get("/resetprogram", dataController.resetProgram);
 adminRouter.post("/imageUpload", multer.templateImagesUpload, dataController.addImage);
+adminRouter.post("/upload-template-dynamic", multer.templateSingleUpload, dataController.uploadTemplateDynamic);
+adminRouter.delete("/delete-template-dynamic/:templateId", dataController.deleteTemplateDynamic);
 adminRouter.get("/allresult", dataController.allResult);
 adminRouter.delete("/deleteresult/:id", dataController.deleteResult);
 adminRouter.patch("/toggleresult/:id", dataController.togglePublishResult);

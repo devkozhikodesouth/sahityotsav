@@ -175,8 +175,18 @@ const getData = async (req, res) => {
         console.error("Error updating count:", countError);
       }
 
+      let resultNumber = 0;
+      if (resultData.result && Array.isArray(resultData.result)) {
+        resultData.result.forEach(pos => {
+          if (Array.isArray(pos.winners)) {
+            resultNumber += pos.winners.length;
+          }
+        });
+      }
+
       return res.status(200).json({
         data: resultData,
+        resultNumber: resultNumber,
         success: true,
       });
     } else {
@@ -245,6 +255,16 @@ const addImage = async (req, res) => {
       }
     });
 
+    let templateMode = req.body.templateMode || "fixed";
+    let templateRules = [];
+    if (req.body.templateRules) {
+      try {
+        templateRules = JSON.parse(req.body.templateRules);
+      } catch (e) {
+        // fallback
+      }
+    }
+
     if (existingImages) {
       // Update existing document
       images.forEach((imageKey, index) => {
@@ -266,11 +286,37 @@ const addImage = async (req, res) => {
         existingImages[imageKey].color = updatedImages[imageKey].color;
       });
 
+      existingImages.templateMode = templateMode;
+      existingImages.templateRules = templateRules;
+
+      if (req.body.templatesMetadata) {
+        try {
+          const meta = JSON.parse(req.body.templatesMetadata);
+          if (Array.isArray(meta)) {
+            meta.forEach(m => {
+              const matchedTemplate = existingImages.templates.id(m._id);
+              if (matchedTemplate) {
+                if (m.color) matchedTemplate.color = m.color;
+                if (m.positions) matchedTemplate.positions = m.positions;
+                if (m.minResultNumber !== undefined) matchedTemplate.minResultNumber = m.minResultNumber;
+                if (m.maxResultNumber !== undefined) matchedTemplate.maxResultNumber = m.maxResultNumber;
+              }
+            });
+          }
+        } catch (e) {
+          console.error("Error parsing templatesMetadata:", e);
+        }
+      }
+
       const updatedData = await existingImages.save();
       return res.json({ success: true, data: updatedData });
     } else {
       // Create new image record
-      const newImageData = new ImageData(updatedImages);
+      const newImageData = new ImageData({
+        ...updatedImages,
+        templateMode,
+        templateRules
+      });
       await newImageData.save();
       return res.json({ success: true, data: newImageData });
     }
@@ -925,4 +971,68 @@ module.exports = {
   getExternalResults,
   getExternalTeamPoints,
   getExternalParticipantDetails,
+  uploadTemplateDynamic,
+  deleteTemplateDynamic,
 };
+
+async function uploadTemplateDynamic(req, res) {
+  try {
+    const file = req.file;
+    if (!file) {
+      return res.status(400).json({ success: false, error: "No image uploaded" });
+    }
+
+    let existingImages = await ImageData.findOne({ festivalId: req.tenantId });
+    if (!existingImages) {
+      existingImages = new ImageData({ festivalId: req.tenantId });
+    }
+
+    const newTemplate = {
+      image: file.path,
+      public_id: file.filename,
+      color: "text-black",
+      positions: { x: 45, y: 140 },
+      minResultNumber: 1,
+      maxResultNumber: 10
+    };
+
+    existingImages.templates.push(newTemplate);
+    const updatedData = await existingImages.save();
+    const savedTemplate = updatedData.templates[updatedData.templates.length - 1];
+    
+    res.status(201).json({ success: true, data: savedTemplate, allTemplates: updatedData.templates });
+  } catch (err) {
+    console.error("Upload template error:", err);
+    res.status(500).json({ success: false, error: "Internal server error", message: err.message });
+  }
+}
+
+async function deleteTemplateDynamic(req, res) {
+  try {
+    const { templateId } = req.params;
+    const existingImages = await ImageData.findOne({ festivalId: req.tenantId });
+    if (!existingImages) {
+      return res.status(404).json({ success: false, error: "Record not found" });
+    }
+
+    const matchedTemplate = existingImages.templates.id(templateId);
+    if (!matchedTemplate) {
+      return res.status(404).json({ success: false, error: "Template not found" });
+    }
+
+    if (matchedTemplate.public_id) {
+      cloudinary.uploader.destroy(matchedTemplate.public_id, (err) => {
+        if (err) console.error("Cloudinary deletion error:", err);
+      });
+    }
+
+    existingImages.templates.pull(templateId);
+    existingImages.templateRules = existingImages.templateRules.filter(r => r.templateId !== templateId);
+
+    const updatedData = await existingImages.save();
+    res.status(200).json({ success: true, data: updatedData });
+  } catch (err) {
+    console.error("Delete template error:", err);
+    res.status(500).json({ success: false, error: "Internal server error", message: err.message });
+  }
+}

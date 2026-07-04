@@ -79,6 +79,18 @@ async function ImageUploadServer(formData) {
   return response.data;
 }
 
+async function uploadTemplateDynamic(formData) {
+  const response = await axios.post("/upload-template-dynamic", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+  return response.data;
+}
+
+async function deleteTemplateDynamic(templateId) {
+  const response = await axios.delete(`/delete-template-dynamic/${templateId}`);
+  return response.data;
+}
+
 // ---------------------------------------------------------------------------
 // Team Points
 // ---------------------------------------------------------------------------
@@ -401,6 +413,8 @@ export {
   getAds,
   uploadAd,
   deleteAd,
+  uploadTemplateDynamic,
+  deleteTemplateDynamic,
 };
 
 async function getPublicCompetitions(apiKey) {
