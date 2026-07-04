@@ -321,7 +321,7 @@ function Results({ festival }) {
                         <div className="space-y-3">
                           {place.winners.map((winner, winnerIdx) => (
                             <div key={winnerIdx} className="mb-2 last:mb-0">
-                              <p className="text-lg font-heading font-bold text-primary leading-tight break-words">{winner.name}</p>
+                              <p className="text-lg font-biorhyme font-bold text-primary leading-tight break-words">{winner.name}</p>
                               <p className="text-xs font-serif font-medium text-accent mt-1">{winner.teamId?.teamName || winner.team}</p>
                             </div>
                           ))}

@@ -85,7 +85,7 @@ function ImageDownload({ results, category, item, color, image, positions }) {
                     <div key={index} className="mb-[6px]">
                       {winners.map((winner, wIdx) => (
                         <div key={wIdx} className={wIdx > 0 ? "mt-1" : ""}>
-                          <div className={`text-[12px] leading-tight montserrat-bold ${color}`}>
+                          <div className={`text-[12px] leading-tight font-biorhyme font-bold ${color}`}>
                             {winner.name?.toLowerCase()?.replace(/^\w/, (c) => c.toUpperCase()) || ""}
                           </div>
                           <div className={`text-[10px] leading-tight montserrat-regular ${color}`}>

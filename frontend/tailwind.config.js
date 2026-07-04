@@ -33,6 +33,7 @@ export default {
         poppins: ['Poppins', 'sans-serif'],
         montserrat: ['Montserrat', 'sans-serif'],
         serif: ['Lora', 'serif'],
+        biorhyme: ['BioRhyme', 'serif'],
       },
       animation: {
         'fade-in': 'fadeIn 0.5s ease-out forwards',
