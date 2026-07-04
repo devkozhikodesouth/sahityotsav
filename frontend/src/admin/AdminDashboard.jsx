@@ -225,7 +225,7 @@ function AdminDashboard() {
               </p>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t border-indigo-900/40">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2 border-t border-indigo-900/40">
               <div className="flex flex-col gap-1">
                 <span className="text-[10px] font-bold text-indigo-400 uppercase">External API Base URL</span>
                 <span className="text-xs text-gray-200 font-mono break-all">{currentFestival?.externalBaseUrl || "Not configured"}</span>
@@ -234,6 +234,14 @@ function AdminDashboard() {
                 <span className="text-[10px] font-bold text-indigo-400 uppercase">External API Key</span>
                 <span className="text-xs text-gray-200 font-mono break-all">
                   {currentFestival?.externalApiKey ? `${currentFestival.externalApiKey.slice(0, 8)}...${currentFestival.externalApiKey.slice(-8)}` : "Not configured"}
+                </span>
+              </div>
+              <div className="flex flex-col gap-1">
+                <span className="text-[10px] font-bold text-indigo-400 uppercase">External Team Points Limit</span>
+                <span className="text-xs text-gray-200 font-mono">
+                  {currentFestival?.teamPointsLimit !== undefined && currentFestival?.teamPointsLimit !== 0
+                    ? `Top ${currentFestival.teamPointsLimit} teams`
+                    : "No limit (All teams)"}
                 </span>
               </div>
             </div>
