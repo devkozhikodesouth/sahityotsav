@@ -25,7 +25,7 @@ function Results({ festival }) {
         try {
           const responseData = await getProxyCompetitions();
           const comps = Array.isArray(responseData) ? responseData : (Array.isArray(responseData.data) ? responseData.data : []);
-          
+
           const uniqueCats = [];
           const catMap = {};
           comps.forEach(comp => {
@@ -85,7 +85,7 @@ function Results({ festival }) {
       setItems([]);
       return;
     }
-    
+
     if (festival?.externalApiEnabled) {
       const filteredComps = allPublicCompetitions.filter(comp => comp.category === selectedCategory);
       const mappedItems = filteredComps.map(comp => ({
@@ -111,13 +111,13 @@ function Results({ festival }) {
     }
     try {
       toast.loading("Fetching results...");
-      
+
       if (festival?.externalApiEnabled) {
         const responseData = await getProxyCompetitionResults(itemValue);
         toast.dismiss();
-        
+
         const entries = Array.isArray(responseData) ? responseData : (Array.isArray(responseData.data) ? responseData.data : []);
-        
+
         if (entries.length > 0) {
           const comp = allPublicCompetitions.find(c => c.id === itemValue);
           const tDetails = {
@@ -226,7 +226,7 @@ function Results({ festival }) {
         </motion.div>
 
         {/* Filters */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -247,11 +247,11 @@ function Results({ festival }) {
                 ))}
               </select>
               <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-accent">
-                <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+                <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" /></svg>
               </div>
             </div>
           </div>
-          
+
           <div className="w-full md:w-1/2 flex flex-col gap-2">
             <label className="text-xs font-heading font-bold text-primary uppercase tracking-wider">Item / Event</label>
             <div className="relative">
@@ -269,7 +269,7 @@ function Results({ festival }) {
                 ))}
               </select>
               <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-accent">
-                <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+                <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" /></svg>
               </div>
             </div>
           </div>
@@ -289,23 +289,23 @@ function Results({ festival }) {
               {/* Podium / Top 3 List */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 {[
-                  { 
-                    winners: results.result[0]?.winners || (results.result[0]?.firstPrize ? [{ name: results.result[0].firstPrize, team: results.result[0].firstTeam }] : []), 
+                  {
+                    winners: results.result[0]?.winners || (results.result[0]?.firstPrize ? [{ name: results.result[0].firstPrize, team: results.result[0].firstTeam }] : []),
                     title: "1st Prize",
                     borderStyle: "border-t-4 border-t-accent border border-accent/20"
                   },
-                  { 
-                    winners: results.result[1]?.winners || (results.result[1]?.secPrize ? [{ name: results.result[1].secPrize, team: results.result[1].secTeam }] : []), 
+                  {
+                    winners: results.result[1]?.winners || (results.result[1]?.secPrize ? [{ name: results.result[1].secPrize, team: results.result[1].secTeam }] : []),
                     title: "2nd Prize",
                     borderStyle: "border-t-4 border-t-accent/70 border border-accent/20"
                   },
-                  { 
-                    winners: results.result[2]?.winners || (results.result[2]?.thirdPrize ? [{ name: results.result[2].thirdPrize, team: results.result[2].thirdTeam }] : []), 
+                  {
+                    winners: results.result[2]?.winners || (results.result[2]?.thirdPrize ? [{ name: results.result[2].thirdPrize, team: results.result[2].thirdTeam }] : []),
                     title: "3rd Prize",
                     borderStyle: "border-t-4 border-t-copper/70 border border-accent/20"
                   }
                 ].map((place, idx) => (
-                  <motion.div 
+                  <motion.div
                     key={idx}
                     variants={itemVariants}
                     whileHover={{ y: -5 }}
@@ -327,7 +327,7 @@ function Results({ festival }) {
                           ))}
                         </div>
                       ) : (
-                         <p className="text-sm text-secondary/50 italic font-serif">Not Awarded</p>
+                        <p className="text-sm text-secondary/50 italic font-serif">Not Awarded</p>
                       )}
                     </div>
                   </motion.div>

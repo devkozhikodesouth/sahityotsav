@@ -7,7 +7,8 @@ import {
   FaImages,
   FaChartBar,
   FaMapMarkedAlt,
-  FaCompass
+  FaCompass,
+  FaAward
 } from "react-icons/fa";
 import { MdLiveTv, MdClose } from "react-icons/md";
 import { TiThMenu } from "react-icons/ti";
@@ -51,6 +52,7 @@ export default function RightSidebarLayout({ festival }) {
     { name: "Live", icon: <MdLiveTv />, href: "#live", featureKey: "live" },
     { name: "Videos", icon: <FaVideo />, href: "#videos", featureKey: "videos" },
     { name: "Results", icon: <FaTrophy />, href: "#results", featureKey: "results" },
+    { name: "Student Details", icon: <FaAward />, href: "#student-details", featureKey: "studentDetails" },
     { name: "Total Point", icon: <FaChartBar />, href: "#total-point", featureKey: "teamPoints" },
     { name: "Gallery", icon: <FaImages />, href: "#gallery", featureKey: "gallery" },
     { name: "Map", icon: <FaMapMarkedAlt />, path: "/map", featureKey: "map" },

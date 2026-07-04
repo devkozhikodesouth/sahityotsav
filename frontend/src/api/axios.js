@@ -57,9 +57,8 @@ const axiosInstance = axios.create({
 // Request interceptor
 // Responsibilities:
 //   1. Normalise absolute URLs to relative paths (strips base prefix)
-//   2. Scope the path under the correct tenant route segment
+//   2. Scope the path under the correct route (admin/ prefix for admin calls)
 //   3. Attach the Bearer access token when present
-//   4. Inject x-tenant-id & x-tenant-host headers for server-side resolution
 // ---------------------------------------------------------------------------
 
 axiosInstance.interceptors.request.use(
@@ -83,21 +82,13 @@ axiosInstance.interceptors.request.use(
     // Strip leading slash for easier prefix checks below
     if (url.startsWith("/")) url = url.slice(1);
 
-    // 2. Tenant scoping — skip auth / already-scoped routes
+    // 2. Prepend admin/ if the user is authenticated (admin mode)
+    // and the URL doesn't already start with auth/ or admin/
     const isAuthRoute = url.startsWith("auth");
-    const isAlreadyScoped =
-      url.startsWith("admin/festivals") || url.startsWith("festivals") || url.startsWith("public");
+    const isAlreadyAdmin = url.startsWith("admin");
 
-    if (!isAuthRoute && !isAlreadyScoped) {
-      if (accessToken) {
-        // Admin mode: prepend admin festival path
-        const festivalId = localStorage.getItem("selectedFestival");
-        if (festivalId) url = `admin/festivals/${festivalId}/${url}`;
-      } else {
-        // Guest mode: prepend public festival path
-        const publicFestivalId = localStorage.getItem("publicFestivalId");
-        if (publicFestivalId) url = `festivals/${publicFestivalId}/${url}`;
-      }
+    if (!isAuthRoute && !isAlreadyAdmin && accessToken) {
+      url = `admin/${url}`;
     }
 
     config.url = "/" + url;
@@ -105,16 +96,6 @@ axiosInstance.interceptors.request.use(
     // 3. Bearer token
     if (accessToken) {
       config.headers["Authorization"] = `Bearer ${accessToken}`;
-    }
-
-    // 4. Tenant identification headers
-    const publicFestivalId = localStorage.getItem("publicFestivalId");
-    const selectedFestival = localStorage.getItem("selectedFestival");
-
-    if (accessToken && selectedFestival) {
-      config.headers["x-tenant-id"] = selectedFestival;
-    } else if (publicFestivalId) {
-      config.headers["x-tenant-id"] = publicFestivalId;
     }
 
     return config;

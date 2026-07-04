@@ -5,6 +5,10 @@
       "destination": "https://ssfkozhikode.onrender.com/api/:path*"
     },
     {
+      "source": "/api-external/:path*",
+      "destination": "https://sahityotsav.com/:path*"
+    },
+    {
       "source": "/(.*)",
       "destination": "/"
     }

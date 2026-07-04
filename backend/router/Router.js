@@ -61,9 +61,10 @@ guestRouter.get("/get-ads", adController.getAds);
 guestRouter.get("/external-competitions", dataController.getExternalCompetitions);
 guestRouter.get("/external-results/:competitionId", dataController.getExternalResults);
 guestRouter.get("/external-teampoints", dataController.getExternalTeamPoints);
+guestRouter.get("/external-participant-details", dataController.getExternalParticipantDetails);
 
 // Mount the guest routes
-router.use("/festivals/:festivalId", guestRouter);
+router.use("/", guestRouter);
 
 // 3. Admin routes for a specific festival (Authentication and assignment required)
 // Guarded by authenticateToken and validateTenantAccess
@@ -157,6 +158,6 @@ adminRouter.get("/external-results/:competitionId", dataController.getExternalRe
 adminRouter.get("/external-teampoints", dataController.getExternalTeamPoints);
 
 // Mount the admin routes
-router.use("/admin/festivals/:festivalId", adminRouter);
+router.use("/admin", adminRouter);
 
 module.exports = router;

@@ -28,5 +28,6 @@ router.use(validatePublicKey);
 router.get("/team-points", publicApiController.getTeamPoints);
 router.get("/competitions", publicApiController.getCompetitions);
 router.get("/competitions/:competitionId/results", publicApiController.getCompetitionResults);
+router.get("/participant-details", publicApiController.getParticipantDetails);
 
 module.exports = router;

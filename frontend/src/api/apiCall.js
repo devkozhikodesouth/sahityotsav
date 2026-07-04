@@ -439,8 +439,9 @@ async function getProxyCompetitionResults(competitionId) {
   return response.data;
 }
 
-async function getProxyTeamPoints() {
-  const response = await axios.get("/external-teampoints?limit=0");
+async function getProxyTeamPoints(teamTypeName = "") {
+  const query = teamTypeName ? `/external-teampoints?limit=0&teamTypeName=${encodeURIComponent(teamTypeName)}` : "/external-teampoints?limit=0";
+  const response = await axios.get(query);
   return response.data;
 }
 

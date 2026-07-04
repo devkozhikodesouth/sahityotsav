@@ -13,6 +13,7 @@ const Feature = require("../models/featureSchema");
 const LiveLink = require("../models/LiveModel");
 const Count = require("../models/Count");
 const Festival = require("../models/Festival");
+const Participant = require("../models/Participant");
 
 
 const cloudinary = require("cloudinary").v2;
@@ -499,18 +500,41 @@ const featureUpdate = async (req, res) => {
 const getFeature = async (req, res) => {
   try {
     let features = await Feature.find({ festivalId: req.tenantId });
+    const requiredFeatures = [
+      { name: "results", default: true },
+      { name: "videos", default: true },
+      { name: "live", default: true },
+      { name: "teamPoints", default: true },
+      { name: "news", default: false },
+      { name: "ads", default: false },
+      { name: "gallery", default: true },
+      { name: "theme", default: false },
+      { name: "map", default: false },
+      { name: "studentDetails", default: true }
+    ];
+
     if (features.length === 0) {
-      features = await Feature.insertMany([
-        { festivalId: req.tenantId, name: "results", enabled: true },
-        { festivalId: req.tenantId, name: "videos", enabled: true },
-        { festivalId: req.tenantId, name: "live", enabled: true },
-        { festivalId: req.tenantId, name: "teamPoints", enabled: true },
-        { festivalId: req.tenantId, name: "news", enabled: false },
-        { festivalId: req.tenantId, name: "ads", enabled: false },
-        { festivalId: req.tenantId, name: "gallery", enabled: true },
-        { festivalId: req.tenantId, name: "theme", enabled: false },
-        { festivalId: req.tenantId, name: "map", enabled: false },
-      ]);
+      features = await Feature.insertMany(
+        requiredFeatures.map(rf => ({
+          festivalId: req.tenantId,
+          name: rf.name,
+          enabled: rf.default
+        }))
+      );
+    } else {
+      // Find missing features and add them
+      const existingNames = features.map(f => f.name);
+      const missingFeatures = requiredFeatures.filter(rf => !existingNames.includes(rf.name));
+      if (missingFeatures.length > 0) {
+        const added = await Feature.insertMany(
+          missingFeatures.map(rf => ({
+            festivalId: req.tenantId,
+            name: rf.name,
+            enabled: rf.default
+          }))
+        );
+        features = [...features, ...added];
+      }
     }
     res.status(200).json(features);
   } catch (error) {
@@ -534,6 +558,7 @@ const resetFeature = async (req, res) => {
       { festivalId: req.tenantId, name: "gallery", enabled: true },
       { festivalId: req.tenantId, name: "theme", enabled: false },
       { festivalId: req.tenantId, name: "map", enabled: false },
+      { festivalId: req.tenantId, name: "studentDetails", enabled: true }
     ]);
 
     res.status(200).json({
@@ -700,7 +725,12 @@ const getExternalCompetitions = async (req, res) => {
       return res.status(400).json({ success: false, message: "External API integration is not enabled" });
     }
 
-    const response = await axios.get(`${festival.externalBaseUrl}/public/competitions`, {
+    let baseUrl = festival.externalBaseUrl.trim();
+    if (baseUrl.endsWith("/")) {
+      baseUrl = baseUrl.slice(0, -1);
+    }
+
+    const response = await axios.get(`${baseUrl}/public/competitions`, {
       headers: { "x-api-key": festival.externalApiKey }
     });
     res.status(200).json(response.data);
@@ -721,7 +751,12 @@ const getExternalResults = async (req, res) => {
     }
 
     const { competitionId } = req.params;
-    const response = await axios.get(`${festival.externalBaseUrl}/public/competitions/${competitionId}/results`, {
+    let baseUrl = festival.externalBaseUrl.trim();
+    if (baseUrl.endsWith("/")) {
+      baseUrl = baseUrl.slice(0, -1);
+    }
+
+    const response = await axios.get(`${baseUrl}/public/competitions/${competitionId}/results`, {
       headers: { "x-api-key": festival.externalApiKey }
     });
     res.status(200).json(response.data);
@@ -743,7 +778,13 @@ const getExternalTeamPoints = async (req, res) => {
 
     const limit = req.query.limit !== undefined ? req.query.limit : 0;
     const teamTypeName = req.query.teamTypeName;
-    let url = `${festival.externalBaseUrl}/public/team-points?limit=${limit}`;
+
+    let baseUrl = festival.externalBaseUrl.trim();
+    if (baseUrl.endsWith("/")) {
+      baseUrl = baseUrl.slice(0, -1);
+    }
+
+    let url = `${baseUrl}/public/team-points?limit=${limit}`;
     if (teamTypeName) {
       url += `&teamTypeName=${teamTypeName}`;
     }
@@ -755,6 +796,107 @@ const getExternalTeamPoints = async (req, res) => {
   } catch (error) {
     console.error("Proxy Team Points Error:", error.message);
     res.status(error.response?.status || 500).json(error.response?.data || { success: false, message: "Proxy fetch failed" });
+  }
+};
+
+const getExternalParticipantDetails = async (req, res) => {
+  try {
+    const { chestNumber, dob } = req.query;
+
+    if (!chestNumber || !dob) {
+      return res.status(400).json({
+        msg: "Bad Request: chestNumber and dob are required.",
+        status: 400,
+        additionalInfo: {}
+      });
+    }
+
+    const festivalId = req.tenantId;
+    const festival = await Festival.findById(festivalId);
+    if (!festival) {
+      return res.status(404).json({ success: false, message: "Festival not found" });
+    }
+
+    // If external API is enabled, proxy the request to the external server
+    if (festival.externalApiEnabled && festival.externalBaseUrl) {
+      let baseUrl = festival.externalBaseUrl.trim();
+      if (baseUrl.endsWith("/")) {
+        baseUrl = baseUrl.slice(0, -1);
+      }
+
+      const response = await axios.get(`${baseUrl}/public/participant-details`, {
+        params: { chestNumber, dob },
+        headers: { "x-api-key": festival.externalApiKey }
+      });
+      return res.status(200).json(response.data);
+    }
+
+    // Direct local DB lookup — fallback when external API not enabled
+    const participant = await Participant.findOne({
+      festivalId,
+      chestNumber: { $regex: new RegExp(`^${chestNumber.trim()}$`, "i") },
+      dob: dob.trim()
+    });
+
+    if (!participant) {
+      return res.status(404).json({
+        msg: "Participant not found for the provided chest number and date of birth.",
+        status: 404,
+        additionalInfo: {}
+      });
+    }
+
+    const competitions = participant.competitions || [];
+    const totalCompetitions = competitions.length;
+    const completedCompetitions = competitions.filter(c => c.result && c.result.published).length;
+    const prizesWon = competitions.filter(c => c.prize && c.prize.exists && c.result && c.result.rank <= 3).length;
+    const prizesPendingCollection = competitions.filter(c => c.prize && c.prize.exists && !c.prize.isCollected).length;
+
+    res.status(200).json({
+      msg: "Participant details fetched successfully",
+      status: 200,
+      data: {
+        participant: {
+          id: participant._id,
+          chestNumber: participant.chestNumber,
+          fullName: participant.fullName,
+          gender: participant.gender,
+          category: participant.category,
+          teamName: participant.teamName,
+          photo: participant.photo,
+          eventName: participant.eventName
+        },
+        competitionOverview: {
+          totalCompetitions,
+          completedCompetitions,
+          prizesWon,
+          prizesPendingCollection
+        },
+        competitions: competitions.map(c => ({
+          competitionId: c.competitionId,
+          competitionName: c.competitionName,
+          result: c.result && c.result.published ? {
+            published: true,
+            qualified: c.result.qualified,
+            rank: c.result.rank,
+            grade: c.result.grade,
+            point: c.result.point
+          } : { published: false },
+          prize: c.prize && c.prize.exists ? {
+            exists: true,
+            title: c.prize.title,
+            isCollected: c.prize.isCollected
+          } : { exists: false }
+        }))
+      }
+    });
+  } catch (error) {
+    console.error("Participant Details Error:", error.message);
+    res.status(error.response?.status || 500).json(error.response?.data || {
+      msg: "Internal server error.",
+      status: 500,
+      additionalInfo: { error: error.message }
+    });
   }
 };
 
@@ -782,4 +924,5 @@ module.exports = {
   getExternalCompetitions,
   getExternalResults,
   getExternalTeamPoints,
+  getExternalParticipantDetails,
 };

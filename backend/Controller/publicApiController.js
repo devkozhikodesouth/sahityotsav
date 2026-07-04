@@ -1,6 +1,7 @@
 const Result = require("../models/resultModel");
 const TeamPoint = require("../models/teamPointModel");
 const Team = require("../models/Team");
+const Participant = require("../models/Participant");
 const mongoose = require("mongoose");
 
 // Helper to resolve team type dynamically from name if not stored explicitly
@@ -114,7 +115,7 @@ const getTeamPoints = async (req, res) => {
       const data = await TeamPoint.findOne({ festivalId }).populate("results.team");
       if (data && data.results && data.results.length > 0) {
         const validResults = data.results.filter(item => item.team);
-        
+
         let filteredResults = validResults;
         if (teamTypeName) {
           filteredResults = validResults.filter(item => {
@@ -213,7 +214,7 @@ const getCompetitions = async (req, res) => {
     const data = results.map(r => {
       // Determine competition type - dynamically fall back to Individual
       let compType = "Individual";
-      
+
       return {
         id: r.item?._id || r._id,
         name: r.item?.itemName || "Unknown Competition",
@@ -324,8 +325,107 @@ const getCompetitionResults = async (req, res) => {
   }
 };
 
+// 4. GET /api/public/participant-details
+const getParticipantDetails = async (req, res) => {
+  try {
+    const { chestNumber, dob } = req.query;
+
+    if (!chestNumber || !dob) {
+      return res.status(400).json({
+        msg: "Bad Request: chestNumber and dob parameters are required.",
+        status: 400,
+        additionalInfo: {}
+      });
+    }
+
+    // Demo API key does not have a linked festival — reject this endpoint for demo keys
+    if (req.isDemo || !req.festival) {
+      return res.status(403).json({
+        msg: "Forbidden: Participant details lookup is not available for demo API keys. Use a valid festival API key.",
+        status: 403,
+        additionalInfo: {}
+      });
+    }
+
+    const festivalId = req.festival._id;
+
+    // Search case-insensitively for the chestNumber and match dob
+    const participant = await Participant.findOne({
+      festivalId,
+      chestNumber: { $regex: new RegExp(`^${chestNumber.trim()}$`, "i") },
+      dob: dob.trim()
+    });
+
+    if (!participant) {
+      return res.status(404).json({
+        msg: "Participant details not found for the provided chest number and date of birth.",
+        status: 404,
+        additionalInfo: {}
+      });
+    }
+
+    // Dynamic calculations from competitions array
+    const competitions = participant.competitions || [];
+    const totalCompetitions = competitions.length;
+    const completedCompetitions = competitions.filter(c => c.result && c.result.published).length;
+    const prizesWon = competitions.filter(c => c.prize && c.prize.exists && c.result && c.result.rank <= 3).length;
+    const prizesPendingCollection = competitions.filter(c => c.prize && c.prize.exists && !c.prize.isCollected).length;
+
+    res.status(200).json({
+      msg: "Participant details fetched successfully",
+      status: 200,
+      data: {
+        participant: {
+          id: participant._id,
+          chestNumber: participant.chestNumber,
+          fullName: participant.fullName,
+          gender: participant.gender,
+          category: participant.category,
+          teamName: participant.teamName,
+          photo: participant.photo,
+          eventName: participant.eventName || req.festival.name
+        },
+        competitionOverview: {
+          totalCompetitions,
+          completedCompetitions,
+          prizesWon,
+          prizesPendingCollection
+        },
+        competitions: competitions.map(c => ({
+          competitionId: c.competitionId,
+          competitionName: c.competitionName,
+          result: c.result && c.result.published ? {
+            published: true,
+            qualified: c.result.qualified,
+            rank: c.result.rank,
+            grade: c.result.grade,
+            point: c.result.point
+          } : {
+            published: false
+          },
+          prize: c.prize && c.prize.exists ? {
+            exists: true,
+            title: c.prize.title,
+            isCollected: c.prize.isCollected
+          } : {
+            exists: false
+          }
+        }))
+      }
+    });
+  } catch (error) {
+    console.error("Public API getParticipantDetails error:", error);
+    res.status(500).json({
+      msg: "Internal server error.",
+      status: 500,
+      additionalInfo: { error: error.message }
+    });
+  }
+};
+
 module.exports = {
   getTeamPoints,
   getCompetitions,
-  getCompetitionResults
+  getCompetitionResults,
+  getParticipantDetails
 };
