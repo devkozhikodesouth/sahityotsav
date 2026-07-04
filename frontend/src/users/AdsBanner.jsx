@@ -91,9 +91,9 @@ const AdsBanner = ({ className = "" }) => {
             </AnimatePresence>
 
             {/* Ad Badge */}
-            <div className="absolute top-4 right-4 bg-secondary/80 backdrop-blur-sm text-accent text-[8px] uppercase font-heading font-bold tracking-widest px-2.5 py-0.5 rounded border border-accent/30 select-none z-20">
+            {/* <div className="absolute top-4 right-4 bg-secondary/80 backdrop-blur-sm text-accent text-[8px] uppercase font-heading font-bold tracking-widest px-2.5 py-0.5 rounded border border-accent/30 select-none z-20">
               AD
-            </div>
+            </div> */}
 
             {/* Slider controls (only show if multiple ads exist) */}
             {ads.length > 1 && (

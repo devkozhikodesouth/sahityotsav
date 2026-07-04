@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { getDataServer, getResultImage, getProxyCompetitions, getProxyCompetitionResults } from "../api/apiCall";
+import { getDataServer, getResultImage, getProxyCompetitions, getProxyCompetitionResults, getAds } from "../api/apiCall";
 import { getCategory, getPublishedItem } from "../api/cateGoryAnditem";
 import ImageDownlad from "./ImageDownlad.jsx";
 import toast, { Toaster } from "react-hot-toast";
@@ -13,6 +13,8 @@ function Results({ festival }) {
   const [selectedItem, setSelectedItem] = useState("");
   const [items, setItems] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [ads, setAds] = useState([]);
+  const [resultNumber, setResultNumber] = useState(null);
   const [results, setResults] = useState(null);
   const [images, setImages] = useState([null, null, null]);
   const [color, setColor] = useState([null, null, null]);
@@ -78,6 +80,45 @@ function Results({ festival }) {
     fetchData();
   }, []);
 
+  useEffect(() => {
+    const fetchAds = async () => {
+      try {
+        const res = await getAds();
+        if (res.success && Array.isArray(res.data)) {
+          setAds(res.data);
+        }
+      } catch (err) {
+        console.error("Error fetching advertisements:", err);
+      }
+    };
+    fetchAds();
+  }, []);
+
+  const getFilteredAd = (resultNum) => {
+    if (!ads || ads.length === 0) return null;
+    if (resultNum === null || resultNum === undefined) {
+      return ads.find(ad => ad.startRange === null && ad.endRange === null && ad.minRank === null && ad.maxRank === null) || null;
+    }
+
+    const matchedAd = ads.find(ad => {
+      const start = ad.startRange !== null && ad.startRange !== undefined 
+        ? ad.startRange 
+        : (ad.minRank !== null && ad.minRank !== undefined ? ad.minRank : null);
+      const end = ad.endRange !== null && ad.endRange !== undefined 
+        ? ad.endRange 
+        : (ad.maxRank !== null && ad.maxRank !== undefined ? ad.maxRank : null);
+
+      if (start === null && end === null) return false;
+      const min = start !== null ? start : -Infinity;
+      const max = end !== null ? end : Infinity;
+      return resultNum >= min && resultNum <= max;
+    });
+
+    if (matchedAd) return matchedAd;
+
+    return ads.find(ad => ad.startRange === null && ad.endRange === null && ad.minRank === null && ad.maxRank === null) || null;
+  };
+
   const handleCategoryChange = (event) => {
     const selectedCategory = event.target.value;
     setCategory(selectedCategory);
@@ -107,6 +148,7 @@ function Results({ festival }) {
     setSelectedItem(itemValue);
     if (!itemValue) {
       setResults(null);
+      setResultNumber(null);
       return;
     }
     try {
@@ -155,9 +197,20 @@ function Results({ festival }) {
           };
 
           setResults(formattedResult);
+          
+          const externalResultNumber = responseData.resultNumber !== undefined 
+            ? responseData.resultNumber 
+            : (responseData.data?.resultNumber !== undefined 
+                ? responseData.data.resultNumber 
+                : (entries[0]?.resultNumber !== undefined 
+                    ? entries[0].resultNumber 
+                    : (entries[0]?.rank !== undefined ? entries[0].rank : entries.length)));
+          
+          setResultNumber(externalResultNumber !== null && externalResultNumber !== undefined ? Number(externalResultNumber) : null);
           toast.success(`Published: ${tDetails.category} - ${tDetails.item}`);
         } else {
           setResults({ result: false });
+          setResultNumber(null);
           toast("Not Published Yet");
         }
       } else {
@@ -171,7 +224,18 @@ function Results({ festival }) {
         setResults(data);
         if (success) {
           toast.success(`Published: ${data?.category?.categoryName || "Result"} - ${data?.item?.itemName || "Event"}`);
+          
+          let count = 0;
+          if (data?.result && Array.isArray(data.result)) {
+            data.result.forEach(pos => {
+              if (Array.isArray(pos.winners)) {
+                count += pos.winners.length;
+              }
+            });
+          }
+          setResultNumber(count);
         } else {
+          setResultNumber(null);
           toast(`Not Published Yet: ${data?.category?.categoryName || "Result"} - ${data?.item?.itemName || "Event"}`);
         }
       }
@@ -179,6 +243,7 @@ function Results({ festival }) {
       console.error("Error fetching data:", error.message);
       toast.dismiss();
       setResults({ result: false });
+      setResultNumber(null);
       toast.error(error.message || "Failed to fetch results. Please try again.");
     }
   };
@@ -335,7 +400,7 @@ function Results({ festival }) {
               </div>
 
               {/* Download Cards */}
-              <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 {[0, 1, 2].map((idx) => (
                   <div key={idx} className="bg-surface rounded-2xl p-4 shadow-md overflow-hidden group hover:shadow-lg transition-shadow border border-accent/20">
                     <ImageDownlad
@@ -345,6 +410,7 @@ function Results({ festival }) {
                       item={results?.item?.itemName}
                       image={images[idx]}
                       color={color[idx]}
+                      activeAd={getFilteredAd(resultNumber)}
                     />
                   </div>
                 ))}

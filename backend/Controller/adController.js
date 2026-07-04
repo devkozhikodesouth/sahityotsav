@@ -6,13 +6,24 @@ const saveAd = async (req, res) => {
     const file = req.file;
     if (!file) return res.status(400).json({ success: false, error: "No image uploaded" });
 
-    const { title, link } = req.body;
+    const { title, link, minRank, maxRank, startRange, endRange } = req.body;
+
+    // Use startRange/endRange if provided, otherwise fallback to minRank/maxRank
+    const finalStartRange = startRange !== undefined && startRange !== "" ? startRange : minRank;
+    const finalEndRange = endRange !== undefined && endRange !== "" ? endRange : maxRank;
+
+    const parsedMinRank = finalStartRange !== undefined && finalStartRange !== "" ? Number(finalStartRange) : null;
+    const parsedMaxRank = finalEndRange !== undefined && finalEndRange !== "" ? Number(finalEndRange) : null;
 
     const newAd = await Ad.create({
       path: file.path, // Cloudinary secure_url
       publicId: file.filename, // Cloudinary public_id
       link: link || "",
       title: title || "",
+      minRank: isNaN(parsedMinRank) ? null : parsedMinRank,
+      maxRank: isNaN(parsedMaxRank) ? null : parsedMaxRank,
+      startRange: isNaN(parsedMinRank) ? null : parsedMinRank,
+      endRange: isNaN(parsedMaxRank) ? null : parsedMaxRank,
       festivalId: req.tenantId,
     });
 

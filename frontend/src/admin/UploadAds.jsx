@@ -13,6 +13,8 @@ function UploadAds() {
   // Form states
   const [title, setTitle] = useState("");
   const [link, setLink] = useState("");
+  const [startRange, setStartRange] = useState("");
+  const [endRange, setEndRange] = useState("");
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState("");
 
@@ -50,11 +52,18 @@ function UploadAds() {
       return;
     }
 
+    if (startRange && endRange && Number(startRange) > Number(endRange)) {
+      toast.error("Start range cannot be greater than end range.");
+      return;
+    }
+
     setUploading(true);
     const formData = new FormData();
     formData.append("image", imageFile);
     formData.append("title", title);
     formData.append("link", link);
+    formData.append("startRange", startRange);
+    formData.append("endRange", endRange);
 
     try {
       const res = await uploadAd(formData);
@@ -62,6 +71,8 @@ function UploadAds() {
         toast.success("Advertisement uploaded successfully! 🚀");
         setTitle("");
         setLink("");
+        setStartRange("");
+        setEndRange("");
         setImageFile(null);
         setImagePreview("");
         fetchAdsData(); // Refresh list
@@ -219,6 +230,36 @@ function UploadAds() {
                   />
                 </div>
 
+                {/* Rank Restrictions */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs font-semibold text-gray-300 uppercase tracking-wider block mb-1.5">
+                      Start Range (Min Rank)
+                    </label>
+                    <input
+                      type="number"
+                      min="1"
+                      value={startRange}
+                      onChange={(e) => setStartRange(e.target.value)}
+                      placeholder="e.g. 1"
+                      className="w-full px-4 py-2.5 bg-gray-900 border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-pink-500 transition text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold text-gray-300 uppercase tracking-wider block mb-1.5">
+                      End Range (Max Rank)
+                    </label>
+                    <input
+                      type="number"
+                      min="1"
+                      value={endRange}
+                      onChange={(e) => setEndRange(e.target.value)}
+                      placeholder="e.g. 10"
+                      className="w-full px-4 py-2.5 bg-gray-900 border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-pink-500 transition text-sm"
+                    />
+                  </div>
+                </div>
+
                 <button
                   type="submit"
                   disabled={uploading}
@@ -283,6 +324,15 @@ function UploadAds() {
                           <h4 className="font-bold text-sm text-gray-200 line-clamp-1">
                             {ad.title || "Untitled Advertisement"}
                           </h4>
+                          {(ad.startRange !== null || ad.endRange !== null || ad.minRank !== null || ad.maxRank !== null) ? (
+                            <div className="text-[10px] text-pink-400 font-semibold mt-1">
+                              Target Ranks: {ad.startRange !== null ? ad.startRange : (ad.minRank !== null ? ad.minRank : "1")} - {ad.endRange !== null ? ad.endRange : (ad.maxRank !== null ? ad.maxRank : "∞")}
+                            </div>
+                          ) : (
+                            <div className="text-[10px] text-gray-400 font-medium italic mt-1">
+                              General Fallback Ad
+                            </div>
+                          )}
                           {ad.link ? (
                             <a
                               href={ad.link}

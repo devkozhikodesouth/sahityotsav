@@ -2,7 +2,7 @@ import React, { useRef, useState } from "react";
 import html2canvas from "html2canvas";
 import toast from "react-hot-toast";
 
-function ImageDownload({ results, category, item, color, image, positions }) {
+function ImageDownload({ results, category, item, color, image, positions, activeAd }) {
   const downloadImageRef = useRef(null);
 
   // Define class names in variables
@@ -38,73 +38,119 @@ function ImageDownload({ results, category, item, color, image, positions }) {
     toast.dismiss();
   };
 
+  const baseWidth = 350;
+  const targetWidth = 518.4;
+  const adHeight = 129.6;
+  const scale = targetWidth / baseWidth; // 1.481142857
+
   return (
     <>
       {results?.result && (
-        <div className="">
+        <div className="flex flex-col items-center">
+          {/* Main Downloadable Container (captured by html2canvas) */}
           <div
-            className="relative mx-auto drop-shadow-xl  text-center   h-[350px] w-[350px] mb-24"
+            className="relative mx-auto drop-shadow-xl text-center bg-[#050706] overflow-hidden mb-6 flex flex-col items-center"
             ref={downloadImageRef}
             id="downloadImage"
+            style={{ 
+              width: `${targetWidth}px`, 
+              height: activeAd ? `${targetWidth + adHeight}px` : `${targetWidth}px` 
+            }}
           >
-            <img
-              className="max-w-full object-cover  h-full w-full"
-              src={image}
-              alt="Background"
-            />
-            <div
-              className="absolute  flex flex-col"
-           style={{
-  top: `${positions?.y ?? 140}px`,
-  left: `${positions?.x ?? 45}px`,
-}}
+            {/* 1. Result Certificate Section (518.4x518.4) */}
+            <div 
+              className="relative flex-shrink-0"
+              style={{ width: `${targetWidth}px`, height: `${targetWidth}px` }}
             >
-              <div className="text-start ">
-                <div className={`text-[10px] montserrat-semibold  ${color}`}>
-                  {category}
+              <img
+                className="max-w-full object-cover h-full w-full"
+                src={image}
+                alt="Background"
+              />
+              <div
+                className="absolute flex flex-col text-left"
+                style={{
+                  top: `${(positions?.y ?? 140) * scale}px`,
+                  left: `${(positions?.x ?? 45) * scale}px`,
+                }}
+              >
+                <div className="text-start">
+                  <div 
+                    className={`montserrat-semibold ${color}`}
+                    style={{ fontSize: `${10 * scale}px` }}
+                  >
+                    {category}
+                  </div>
+                  <div 
+                    className={`montserrat-bold ${color}`}
+                    style={{ fontSize: `${15 * scale}px`, marginTop: `${-6 * scale}px` }}
+                  >
+                    {item}
+                  </div>
                 </div>
-                <div
-                  className={`text-[15px] montserrat-bold -mt-[6px]  ${color}`}
+
+                <div 
+                  className="text-start"
+                  style={{ marginTop: `${10 * scale}px`, paddingLeft: `${10 * scale}px` }}
                 >
-                  {item}
+                  {results?.result?.map((result, index) => {
+                    let winners = [];
+                    if (result?.winners) {
+                      winners = result.winners;
+                    } else {
+                      const name = result?.firstPrize || result?.secPrize || result?.thirdPrize;
+                      const team = result?.firstTeam || result?.secTeam || result?.thirdTeam;
+                      if (name) winners = [{ name, team }];
+                    }
+
+                    return (
+                      <div key={index} style={{ marginBottom: `${6 * scale}px` }}>
+                        {winners.map((winner, wIdx) => (
+                          <div key={wIdx} style={{ marginTop: wIdx > 0 ? `${4 * scale}px` : "0px" }}>
+                            <div 
+                              className={`leading-tight font-biorhyme font-bold ${color}`}
+                              style={{ fontSize: `${12 * scale}px` }}
+                            >
+                              {winner.name?.toLowerCase()?.replace(/^\w/, (c) => c.toUpperCase()) || ""}
+                            </div>
+                            <div 
+                              className={`leading-tight montserrat-regular ${color}`}
+                              style={{ fontSize: `${10 * scale}px` }}
+                            >
+                              {(winner.teamId?.teamName || winner.team)?.toLowerCase()?.replace(/^\w/, (c) => c.toUpperCase()) || ""}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    );
+                  })}
                 </div>
-              </div>
-
-              <div className="text-start mt-[10px] pl-[10px]">
-                {results?.result?.map((result, index) => {
-                  let winners = [];
-                  if (result?.winners) {
-                    winners = result.winners;
-                  } else {
-                    const name = result?.firstPrize || result?.secPrize || result?.thirdPrize;
-                    const team = result?.firstTeam || result?.secTeam || result?.thirdTeam;
-                    if (name) winners = [{ name, team }];
-                  }
-
-                  return (
-                    <div key={index} className="mb-[6px]">
-                      {winners.map((winner, wIdx) => (
-                        <div key={wIdx} className={wIdx > 0 ? "mt-1" : ""}>
-                          <div className={`text-[12px] leading-tight font-biorhyme font-bold ${color}`}>
-                            {winner.name?.toLowerCase()?.replace(/^\w/, (c) => c.toUpperCase()) || ""}
-                          </div>
-                          <div className={`text-[10px] leading-tight montserrat-regular ${color}`}>
-                            {(winner.teamId?.teamName || winner.team)?.toLowerCase()?.replace(/^\w/, (c) => c.toUpperCase()) || ""}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  );
-                })}
               </div>
             </div>
-            <button
-              onClick={handleDownloadImage}
-              className="mt-4 px-6 py-2 bg-black text-white font-semibold rounded-md hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-opacity-50"
-            >
-              Download
-            </button>
+
+            {/* 2. Advertisement Section (518.4x129.6) */}
+            {activeAd && (
+              <div 
+                className="overflow-hidden bg-primary border-t border-accent/25 flex items-center justify-center relative flex-shrink-0"
+                style={{ width: `${targetWidth}px`, height: `${adHeight}px` }}
+              >
+                <img
+                  src={activeAd.path}
+                  alt={activeAd.title || "Ad"}
+                  className="w-full h-full object-cover"
+                  crossOrigin="anonymous"
+                />
+              </div>
+            )}
           </div>
+
+          {/* Download Button (Excluded from download element) */}
+          <button
+            onClick={handleDownloadImage}
+            className="mb-24 px-6 py-2 bg-black text-white font-semibold rounded-md hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-opacity-50"
+          >
+            Download
+          </button>
         </div>
       )}
     </>
