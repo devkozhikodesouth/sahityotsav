@@ -74,7 +74,7 @@ function Gallery({ bgColor }) {
               key={index}
               variants={itemVariants}
               whileHover={{ y: -10 }}
-              className="relative aspect-square md:aspect-[4/3] p-3 bg-surface border border-accent/30 rounded-xl shadow-md group cursor-pointer"
+              className="relative aspect-[4/3] p-3 bg-surface border border-accent/30 rounded-xl shadow-md group cursor-pointer"
             >
               <div className="absolute inset-3 bg-primary-dark/20 group-hover:bg-transparent transition-colors z-10 duration-500 rounded-lg"></div>
               <img
@@ -86,7 +86,7 @@ function Gallery({ bgColor }) {
           ))}
           {/* Skeleton loading state if no images yet */}
           {images.length === 0 && [1, 2, 3].map(i => (
-            <div key={`skel-${i}`} className="aspect-square md:aspect-[4/3] rounded-xl bg-surface border border-accent/20 animate-pulse"></div>
+            <div key={`skel-${i}`} className="aspect-[4/3] rounded-xl bg-surface border border-accent/20 animate-pulse"></div>
           ))}
         </motion.div>
 

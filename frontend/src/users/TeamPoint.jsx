@@ -124,14 +124,14 @@ function TeamPoint({ festival, bgColor }) {
           </h2>
           <div className="divider-vintage-ornamental max-w-xs mx-auto"></div>
           <p className="text-secondary/80 max-w-xl mx-auto font-serif italic text-sm md:text-base mt-3">
-            Current team points and overall rankings in the festival.
+            Current team points and overall standings.
           </p>
         </motion.div>
 
         {/* ── TABS — only shown when external API is active ── */}
         {isExternal && (
-          <div className="flex justify-center mb-8">
-            <div className="flex bg-surface/70 border border-accent/25 rounded-xl p-1 gap-1 shadow-md">
+          <div className="flex justify-center mb-8 ">
+            <div className="flex bg-surface/70 border border-accent/25 rounded-xl p-1.5 px-4 gap-2 md:gap-3 shadow-md">
               {TEAM_TABS.map((tab) => {
                 const isActive = activeTab === tab.value;
                 return (
@@ -249,7 +249,7 @@ function TeamPoint({ festival, bgColor }) {
                 ) : (
                   <motion.div variants={rowVariants} className="py-16 text-center text-secondary/60 italic bg-surface/40 rounded-xl border border-dashed border-accent/30">
                     <Trophy className="w-12 h-12 text-accent/40 mx-auto mb-3 animate-pulse" />
-                    No points available yet for {isExternal ? activeTab : "this festival"}
+                    No points available yet for {isExternal ? activeTab : "this event"}
                   </motion.div>
                 )}
               </motion.div>

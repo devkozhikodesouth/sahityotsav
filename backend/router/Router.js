@@ -150,6 +150,7 @@ adminRouter.post("/regenerate-api-key", dataController.regenerateApiKey);
 adminRouter.get("/external-competitions", dataController.getExternalCompetitions);
 adminRouter.get("/external-results/:competitionId", dataController.getExternalResults);
 adminRouter.get("/external-teampoints", dataController.getExternalTeamPoints);
+adminRouter.get("/external-participant-details", dataController.getExternalParticipantDetails);
 
 // Mount the admin routes
 router.use("/admin", adminRouter);

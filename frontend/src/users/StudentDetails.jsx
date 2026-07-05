@@ -65,7 +65,7 @@ export default function StudentDetails({ festival, bgColor }) {
       } else if (err.response?.status === 404) {
         setError("No participant found with that chest number and date of birth.");
       } else if (err.response?.status === 400) {
-        setError("Participant lookup is not enabled for this festival.");
+        setError("Participant lookup is not enabled for this event.");
       } else {
         setError("Failed to fetch participant details. Please check your inputs and try again.");
       }
@@ -207,17 +207,19 @@ export default function StudentDetails({ festival, bgColor }) {
                     {data.participant.fullName}
                   </h3>
                   <p className="text-xs text-secondary/80 font-serif italic mb-4">
-                    {data.participant.category} • {data.participant.gender}
+                    {data.competitions?.[0]?.category || "Participant"}
                   </p>
 
-                  <div className="w-full border-t border-accent/20 pt-4 space-y-1 text-left text-xs">
+                  <div className="w-full border-t border-accent/20 pt-4 space-y-1.5 text-left text-xs">
+                    {data.participant.phone && (
+                      <div className="flex justify-between">
+                        <span className="text-secondary/70 font-serif">Phone:</span>
+                        <span className="font-bold text-primary">{data.participant.phone}</span>
+                      </div>
+                    )}
                     <div className="flex justify-between">
-                      <span className="text-secondary/60 font-serif">Zone/Team:</span>
-                      <span className="font-bold text-primary">{data.participant.teamName}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-secondary/60 font-serif">Festival:</span>
-                      <span className="font-bold text-primary truncate max-w-[150px]">{data.participant.eventName}</span>
+                      <span className="text-secondary/70 font-serif">Event:</span>
+                      <span className="font-bold text-primary truncate max-w-[180px]">{data.participant.eventName}</span>
                     </div>
                   </div>
                 </div>
@@ -246,7 +248,7 @@ export default function StudentDetails({ festival, bgColor }) {
                         {data.competitionOverview.completedCompetitions}
                       </span>
                       <span className="text-[10px] uppercase tracking-wider text-secondary/60 font-heading block mt-0.5">
-                        Results Published
+                        Completed Competitions
                       </span>
                     </div>
                   </div>
@@ -259,7 +261,7 @@ export default function StudentDetails({ festival, bgColor }) {
                         {data.competitionOverview.prizesWon}
                       </span>
                       <span className="text-[10px] uppercase tracking-wider text-secondary/60 font-heading block mt-0.5">
-                        Prizes Won (Rank 1-3)
+                        Prizes Won
                       </span>
                     </div>
                   </div>
@@ -292,81 +294,115 @@ export default function StudentDetails({ festival, bgColor }) {
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-xs border-collapse">
                     <thead>
-                      <tr className="border-b border-accent/20 text-secondary/60 uppercase tracking-widest text-[9px] font-heading font-bold bg-background/30">
+                      <tr className="border-b border-accent/30 text-secondary uppercase tracking-widest text-[9px] font-heading font-black bg-accent/10">
                         <th className="py-4 px-6">Competition</th>
-                        <th className="py-4 px-6 text-center">Result Published</th>
-                        <th className="py-4 px-6 text-center">Rank</th>
+                        <th className="py-4 px-6 text-center">Status</th>
+                        <th className="py-4 px-6 text-center">Position</th>
                         <th className="py-4 px-6 text-center">Grade</th>
                         <th className="py-4 px-6 text-center">Points</th>
                         <th className="py-4 px-6 text-right">Prize Collection</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-accent/15 font-serif text-secondary">
-                      {data.competitions.map((comp, idx) => (
-                        <tr key={idx} className="hover:bg-accent/5 transition-colors">
+                      {data.competitions.map((comp, idx) => {
+                        const isResultPublished = comp.resultPublished || comp.result?.published;
+                        const position = comp.result?.position || comp.result?.rank;
+                        const grade = comp.result?.grade;
+                        const point = comp.result?.point !== undefined ? comp.result.point : comp.result?.points;
 
-                          {/* Name */}
-                          <td className="py-4 px-6 font-bold text-secondary">
-                            {comp.competitionName}
-                          </td>
+                        return (
+                          <tr key={idx} className="hover:bg-accent/5 transition-colors">
 
-                          {/* Published */}
-                          <td className="py-4 px-6 text-center">
-                            {comp.result?.published ? (
-                              <span className="inline-block px-2.5 py-0.5 bg-green-50 border border-green-200 rounded text-[9px] uppercase font-heading text-green-700 font-bold">
-                                Published
-                              </span>
-                            ) : (
-                              <span className="inline-block px-2.5 py-0.5 bg-yellow-50 border border-yellow-200 rounded text-[9px] uppercase font-heading text-yellow-700 font-bold">
-                                Pending
-                              </span>
-                            )}
-                          </td>
+                            {/* Name & Category */}
+                            <td className="py-4 px-6 font-bold text-primary text-sm">
+                              {comp.competitionName}
+                              {comp.category && (
+                                <span className="text-[10px] text-secondary/60 font-sans font-normal mt-0.5 block">
+                                  Category: {comp.category}
+                                </span>
+                              )}
+                            </td>
 
-                          {/* Rank */}
-                          <td className="py-4 px-6 text-center text-sm font-black font-heading">
-                            {comp.result?.published && comp.result?.rank ? (
-                              <span className={comp.result?.rank === 1 ? "text-yellow-600 font-black" : comp.result?.rank === 2 ? "text-slate-500 font-bold" : "text-amber-800 font-semibold"}>
-                                {comp.result?.rank === 1 ? "1st" : comp.result?.rank === 2 ? "2nd" : comp.result?.rank === 3 ? "3rd" : `${comp.result?.rank}th`}
-                              </span>
-                            ) : (
-                              <span className="text-secondary/40">—</span>
-                            )}
-                          </td>
-
-                          {/* Grade */}
-                          <td className="py-4 px-6 text-center text-sm font-black font-heading text-primary-light">
-                            {comp.result?.published && comp.result?.grade ? comp.result?.grade : <span className="text-secondary/40">—</span>}
-                          </td>
-
-                          {/* Points */}
-                          <td className="py-4 px-6 text-center font-bold text-sm">
-                            {comp.result?.published && comp.result?.point !== undefined ? (
-                              <span className="text-primary font-black">{comp.result?.point} pts</span>
-                            ) : (
-                              <span className="text-secondary/40">—</span>
-                            )}
-                          </td>
-
-                          {/* Prize Status */}
-                          <td className="py-4 px-6 text-right">
-                            {comp.prize?.exists ? (
-                              comp.prize.isCollected ? (
-                                <span className="inline-block px-2.5 py-0.5 bg-green-50 border border-green-200 rounded text-[9px] uppercase font-heading text-green-700 font-bold">
-                                  Collected
+                            {/* Published / Status */}
+                            <td className="py-4 px-6 text-center">
+                              {isResultPublished ? (
+                                <span className="inline-block px-2.5 py-1 bg-emerald-800 rounded text-[9px] uppercase font-heading text-white font-bold tracking-wide">
+                                  Completed
                                 </span>
                               ) : (
-                                <span className="inline-block px-2.5 py-0.5 bg-red-50 border border-red-200 rounded text-[9px] uppercase font-heading text-red-700 font-bold animate-pulse">
-                                  Pending ({comp.prize.title || "Prize"})
+                                <span className="inline-block px-2.5 py-1 bg-amber-600 rounded text-[9px] uppercase font-heading text-white font-bold tracking-wide">
+                                  Pending
                                 </span>
-                              )
-                            ) : (
-                              <span className="text-secondary/40">No Prize</span>
-                            )}
-                          </td>
+                              )}
+                            </td>
 
-                        </tr>
-                      ))}
+                            {/* Position */}
+                            <td className="py-4 px-6 text-center font-heading">
+                              {isResultPublished && position ? (
+                                String(position).toUpperCase() === "PARTICIPATED" ? (
+                                  <span className="text-secondary/70 font-semibold text-[10px] uppercase bg-secondary/10 px-2 py-0.5 rounded">
+                                    Participated
+                                  </span>
+                                ) : String(position) === "1" || String(position) === "First" || String(position).toLowerCase().startsWith("1st") ? (
+                                  <span className="inline-block px-2 py-0.5 bg-amber-50 border border-amber-200 rounded text-[10px] font-bold text-amber-700">
+                                    1st Place
+                                  </span>
+                                ) : String(position) === "2" || String(position) === "Second" || String(position).toLowerCase().startsWith("2nd") ? (
+                                  <span className="inline-block px-2 py-0.5 bg-slate-100 border border-slate-200 rounded text-[10px] font-bold text-slate-700">
+                                    2nd Place
+                                  </span>
+                                ) : String(position) === "3" || String(position) === "Third" || String(position).toLowerCase().startsWith("3rd") ? (
+                                  <span className="inline-block px-2 py-0.5 bg-orange-50 border border-orange-200 rounded text-[10px] font-bold text-orange-800">
+                                    3rd Place
+                                  </span>
+                                ) : (
+                                  <span className="text-primary font-bold">{position}</span>
+                                )
+                              ) : (
+                                <span className="text-secondary/40 font-normal">—</span>
+                              )}
+                            </td>
+
+                            {/* Grade */}
+                            <td className="py-4 px-6 text-center text-sm font-black font-heading text-primary">
+                              {isResultPublished && grade ? (
+                                <span className="inline-block px-2 py-0.5 bg-primary/10 rounded text-primary font-black">
+                                  {grade}
+                                </span>
+                              ) : (
+                                <span className="text-secondary/40 font-normal">—</span>
+                              )}
+                            </td>
+
+                            {/* Points */}
+                            <td className="py-4 px-6 text-center font-bold text-sm">
+                              {isResultPublished && point !== undefined && point !== null ? (
+                                <span className="text-primary font-black">{point} pts</span>
+                              ) : (
+                                <span className="text-secondary/40 font-normal">—</span>
+                              )}
+                            </td>
+
+                            {/* Prize Status */}
+                            <td className="py-4 px-6 text-right">
+                              {comp.prize?.exists ? (
+                                comp.prize.isCollected ? (
+                                  <span className="inline-block px-2.5 py-1 bg-emerald-800 rounded text-[9px] uppercase font-heading text-white font-bold tracking-wide">
+                                    Collected
+                                  </span>
+                                ) : (
+                                  <span className="inline-block px-2.5 py-1 bg-rose-800 rounded text-[9px] uppercase font-heading text-white font-bold tracking-wide animate-pulse">
+                                    Pending ({comp.prize.title || "Prize"})
+                                  </span>
+                                )
+                              ) : (
+                                <span className="text-secondary/40 font-normal">No Prize</span>
+                              )}
+                            </td>
+
+                          </tr>
+                        );
+                      })}
                     </tbody>
                   </table>
                 </div>

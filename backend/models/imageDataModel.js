@@ -15,11 +15,6 @@ const ImageSchema = new mongoose.Schema({
 });
 
 const ImageDataSchema = new mongoose.Schema({
-  festivalId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Festival",
-    required: false,
-  },
   image1: ImageSchema,
   image2: ImageSchema,
   image3: ImageSchema,

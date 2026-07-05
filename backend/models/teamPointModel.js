@@ -1,11 +1,6 @@
 const mongoose = require("mongoose");
 
 const TeamPointSchema = new mongoose.Schema({
-    festivalId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Festival",
-      required: false,
-    },
     results: [ 
       {
        team:{

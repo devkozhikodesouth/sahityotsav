@@ -49,7 +49,7 @@ function AddTheme() {
             <Quote size={24} />
           </div>
           <div>
-            <h2 className="text-2xl font-bold text-gray-900 font-heading">Festival Theme</h2>
+            <h2 className="text-2xl font-bold text-gray-900 font-heading">Event Theme</h2>
             <p className="text-gray-500 text-sm">Update the main theme description shown on the homepage.</p>
           </div>
         </div>
@@ -59,7 +59,7 @@ function AddTheme() {
             className="w-full h-48 rounded-xl border border-gray-200 px-5 py-4 text-gray-800 placeholder-gray-400 focus:outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-500/20 transition-all resize-none shadow-inner bg-gray-50 text-lg"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder="Type the festival theme description here..."
+            placeholder="Type the event theme description here..."
             maxLength={maxLength}
           ></textarea>
 

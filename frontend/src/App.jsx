@@ -36,19 +36,37 @@ import NewsAdd from "./admin/NewsAdd.jsx";
 // Portal Pages
 import RightSidebarLayout from "./users/RightSidebarLayout.jsx";
 import HitsDifferent from "./users/HitsDifferent.jsx";
-import { getFullEventTitle } from "./api/apiCall";
+import { getFullEventTitle, getEventConfig } from "./api/apiCall";
 import { ShieldAlert } from "lucide-react";
 
 function App() {
-  const { isAdminLoggedIn, loading, currentFestival } = useContext(AuthContext);
+  const { isAdminLoggedIn, loading } = useContext(AuthContext);
+  const [eventConfig, setEventConfig] = useState(null);
+  const [configLoading, setConfigLoading] = useState(true);
 
   useEffect(() => {
-    if (currentFestival) {
-      document.title = getFullEventTitle(currentFestival);
-    }
-  }, [currentFestival]);
+    const fetchConfig = async () => {
+      try {
+        const res = await getEventConfig();
+        if (res && res.success && res.data) {
+          setEventConfig(res.data);
+        }
+      } catch (err) {
+        console.error("Failed to load event configuration:", err);
+      } finally {
+        setConfigLoading(false);
+      }
+    };
+    fetchConfig();
+  }, []);
 
-  if (loading) {
+  useEffect(() => {
+    if (eventConfig) {
+      document.title = getFullEventTitle(eventConfig);
+    }
+  }, [eventConfig]);
+
+  if (loading || configLoading) {
     return (
       <div className="h-screen bg-gray-950 text-white flex flex-col items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500 mb-4"></div>
@@ -66,8 +84,8 @@ function App() {
         <Route
           path="/"
           element={
-            currentFestival ? (
-              <RightSidebarLayout key={currentFestival._id} festival={currentFestival} />
+            eventConfig ? (
+              <RightSidebarLayout key={eventConfig._id} festival={eventConfig} />
             ) : (
               <div className="h-screen bg-gray-950 text-white flex flex-col items-center justify-center p-6 text-center space-y-6">
                 <div className="bg-red-950/45 p-4 rounded-full border border-red-800 text-red-500 shadow-lg">
@@ -76,7 +94,7 @@ function App() {
                 <div className="space-y-2 max-w-md">
                   <h2 className="text-2xl font-black">Portal Not Found</h2>
                   <p className="text-gray-400 text-sm leading-relaxed">
-                    This festival portal could not be loaded. Please ensure a festival is created in the admin panel.
+                    This portal could not be loaded. Please ensure settings are configured in the admin panel.
                   </p>
                 </div>
               </div>

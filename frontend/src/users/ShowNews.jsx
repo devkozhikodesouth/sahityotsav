@@ -60,7 +60,7 @@ const ShowNews = ({ bgColor }) => {
           </h2>
           <div className="divider-vintage-ornamental max-w-xs mx-auto"></div>
           <p className="text-secondary/80 max-w-xl mx-auto font-serif italic text-sm md:text-base">
-            Stay informed with the latest announcements and stories from the festival.
+            Stay informed with the latest announcements and stories from the event.
           </p>
         </motion.div>
 

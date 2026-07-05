@@ -2,7 +2,7 @@ const startProgramModel = require('../models/startProgram');
 
 const checkProgramStarted = async (req, res, next) => {
   try {
-    const program = await startProgramModel.findOne({ festivalId: req.tenantId });
+    const program = await startProgramModel.findOne({});
 
     // Create initial document with startProgram: false if not exists
     if (program && program.startProgram === false) {
@@ -10,7 +10,7 @@ const checkProgramStarted = async (req, res, next) => {
       next();
     } else if (!program) {
       // No program state yet, create one and proceed
-      await startProgramModel.create({ festivalId: req.tenantId, startProgram: false });
+      await startProgramModel.create({ startProgram: false });
       next();
     } else {
       // Program is started, prevent changes

@@ -5,24 +5,11 @@ export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null); // { id, username, role }
-  const [currentFestival, setCurrentFestival] = useState(null); // Active festival settings
   const [loading, setLoading] = useState(true);
 
-  // Restore session and load active festival config on mount
+  // Restore session on mount
   useEffect(() => {
     const restoreSession = async () => {
-      // 1. Fetch default active festival
-      try {
-        const festRes = await axiosInstance.get("/auth/active-festival");
-        if (festRes.data.success && festRes.data.data) {
-          setCurrentFestival(festRes.data.data);
-          localStorage.setItem("publicFestivalId", festRes.data.data._id);
-          localStorage.setItem("selectedFestival", festRes.data.data._id);
-        }
-      } catch (err) {
-        console.error("Failed to resolve default festival:", err);
-      }
-
       const wasLoggedIn = localStorage.getItem("wasLoggedIn") === "true";
       if (!wasLoggedIn) {
         setLoading(false);
@@ -60,24 +47,6 @@ export const AuthProvider = ({ children }) => {
         setUser(loggedUser);
         localStorage.setItem("wasLoggedIn", "true");
 
-        // Sync local storage ids
-        const activeFestivalId = localStorage.getItem("publicFestivalId");
-        if (activeFestivalId) {
-          localStorage.setItem("selectedFestival", activeFestivalId);
-        }
-
-        // Fetch festival details if not already loaded
-        if (!currentFestival) {
-          try {
-            const festRes = await axiosInstance.get("/auth/active-festival");
-            if (festRes.data.success && festRes.data.data) {
-              setCurrentFestival(festRes.data.data);
-            }
-          } catch (e) {
-            console.error("Failed to load festival info on login:", e);
-          }
-        }
-
         return { success: true };
       }
     } catch (err) {
@@ -104,8 +73,6 @@ export const AuthProvider = ({ children }) => {
     <AuthContext.Provider
       value={{
         user,
-        currentFestival,
-        setCurrentFestival,
         loading,
         isAdminLoggedIn,
         login,

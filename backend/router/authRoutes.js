@@ -6,7 +6,7 @@ const { authenticateToken } = require("../middleware/auth");
 router.post("/login", authController.login);
 router.post("/logout", authController.logout);
 router.post("/refresh", authController.refresh);
-router.get("/active-festival", authController.resolveActiveFestival);
+router.get("/event-config", authController.getEventConfig);
 router.post("/change-password", authenticateToken, authController.changePassword);
 
 module.exports = router;

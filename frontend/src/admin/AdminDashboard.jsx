@@ -22,13 +22,15 @@ import toast, { Toaster } from "react-hot-toast";
 import { AuthContext } from "../context/AuthContext";
 import { useContext, useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { getResultCount, changePassword } from "../api/apiCall";
+import { getResultCount, changePassword, getEventConfig } from "../api/apiCall";
 
 function AdminDashboard() {
   const navigate = useNavigate();
   const [viewCount, setViewCount] = useState(0);
 
-  const { user, currentFestival, logout } = useContext(AuthContext);
+  const { user, logout } = useContext(AuthContext);
+  const [eventConfig, setEventConfig] = useState(null);
+  const [configLoading, setConfigLoading] = useState(true);
 
   const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
   const [oldPassword, setOldPassword] = useState("");
@@ -72,20 +74,24 @@ function AdminDashboard() {
   };
 
   useEffect(() => {
-    async function fetchCount() {
+    async function loadDashboardData() {
       try {
-        if (currentFestival) {
-          const response = await getResultCount();
-          if (response && response.success) {
-            setViewCount(response.count);
+        const configRes = await getEventConfig();
+        if (configRes && configRes.success && configRes.data) {
+          setEventConfig(configRes.data);
+          const countRes = await getResultCount();
+          if (countRes && countRes.success) {
+            setViewCount(countRes.count);
           }
         }
       } catch (error) {
-        console.error("Failed to fetch result count", error);
+        console.error("Failed to load dashboard data:", error);
+      } finally {
+        setConfigLoading(false);
       }
     }
-    fetchCount();
-  }, [user, currentFestival]);
+    loadDashboardData();
+  }, [user]);
 
   const cards = [
     { title: "Add Image", icon: <FaImage />, color: "from-blue-400 to-blue-600", path: "/admin/addImage" },
@@ -142,7 +148,7 @@ function AdminDashboard() {
 
   if (!user) return null;
 
-  if (!currentFestival) {
+  if (configLoading || !eventConfig) {
     return (
       <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center justify-center p-6 text-center">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500 mb-4"></div>
@@ -164,9 +170,9 @@ function AdminDashboard() {
             <FaBuilding />
           </div>
           <div>
-            <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider block">Festival Scope</span>
+            <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider block">Event Scope</span>
             <span className="text-lg font-bold text-white block">
-              {currentFestival ? currentFestival.name : "Loading scope..."}
+              {eventConfig ? eventConfig.name : "Loading scope..."}
             </span>
           </div>
         </div>
@@ -198,7 +204,7 @@ function AdminDashboard() {
             Portal Control Center
           </span>
           <h2 className="text-3xl md:text-5xl font-black tracking-tight text-white mb-2">
-            Festival Admin Dashboard
+            Event Admin Dashboard
           </h2>
           <p className="text-gray-400 text-sm">Welcome, <span className="font-semibold text-gray-200">{user.username}</span>. Select a module to manage your portal.</p>
           <button
@@ -210,7 +216,7 @@ function AdminDashboard() {
         </motion.div>
 
         {/* Grid Cards */}
-        {currentFestival?.externalApiEnabled && (
+        {eventConfig?.externalApiEnabled && (
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -228,19 +234,19 @@ function AdminDashboard() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2 border-t border-indigo-900/40">
               <div className="flex flex-col gap-1">
                 <span className="text-[10px] font-bold text-indigo-400 uppercase">External API Base URL</span>
-                <span className="text-xs text-gray-200 font-mono break-all">{currentFestival?.externalBaseUrl || "Not configured"}</span>
+                <span className="text-xs text-gray-200 font-mono break-all">{eventConfig?.externalBaseUrl || "Not configured"}</span>
               </div>
               <div className="flex flex-col gap-1">
                 <span className="text-[10px] font-bold text-indigo-400 uppercase">External API Key</span>
                 <span className="text-xs text-gray-200 font-mono break-all">
-                  {currentFestival?.externalApiKey ? `${currentFestival.externalApiKey.slice(0, 8)}...${currentFestival.externalApiKey.slice(-8)}` : "Not configured"}
+                  {eventConfig?.externalApiKey ? `${eventConfig.externalApiKey.slice(0, 8)}...${eventConfig.externalApiKey.slice(-8)}` : "Not configured"}
                 </span>
               </div>
               <div className="flex flex-col gap-1">
                 <span className="text-[10px] font-bold text-indigo-400 uppercase">External Team Points Limit</span>
                 <span className="text-xs text-gray-200 font-mono">
-                  {currentFestival?.teamPointsLimit !== undefined && currentFestival?.teamPointsLimit !== 0
-                    ? `Top ${currentFestival.teamPointsLimit} teams`
+                  {eventConfig?.teamPointsLimit !== undefined && eventConfig?.teamPointsLimit !== 0
+                    ? `Top ${eventConfig.teamPointsLimit} teams`
                     : "No limit (All teams)"}
                 </span>
               </div>
@@ -255,7 +261,7 @@ function AdminDashboard() {
           className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-10"
         >
           {cards.filter(card => {
-            if (currentFestival?.externalApiEnabled) {
+            if (eventConfig?.externalApiEnabled) {
               const pathsToHide = [
                 "/admin/addresult",
                 "/admin/addteam",
@@ -291,7 +297,7 @@ function AdminDashboard() {
           variants={containerVariants}
           initial="hidden"
           animate="show"
-          className={`grid grid-cols-1 ${currentFestival?.externalApiEnabled ? "sm:grid-cols-2" : "sm:grid-cols-3"} gap-6 pt-8 border-t border-gray-800`}
+          className={`grid grid-cols-1 ${eventConfig?.externalApiEnabled ? "sm:grid-cols-2" : "sm:grid-cols-3"} gap-6 pt-8 border-t border-gray-800`}
         >
           <motion.div
             variants={itemVariants}
@@ -306,7 +312,7 @@ function AdminDashboard() {
             <h3 className="text-sm font-bold tracking-tight">Go to Public Site</h3>
           </motion.div>
 
-          {!currentFestival?.externalApiEnabled && (
+          {!eventConfig?.externalApiEnabled && (
             <motion.div
               variants={itemVariants}
               whileHover={{ y: -5 }}

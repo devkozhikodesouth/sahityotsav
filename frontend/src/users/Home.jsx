@@ -96,7 +96,7 @@ export default function Home({ festival, onOpenMenu }) {
       <CornerOrnaments />
 
       {/* Floating Menu Button */}
-      <div className="absolute top-6 right-6 z-30">
+      <div className="fixed top-6 right-6 z-50">
         <motion.button
           whileHover={{ scale: 1.05, boxShadow: "0 0 15px rgba(197, 160, 89, 0.3)" }}
           whileTap={{ scale: 0.95 }}

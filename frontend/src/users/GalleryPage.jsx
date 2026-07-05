@@ -72,13 +72,13 @@ function Gallery() {
               Full <span className="text-gradient">Gallery</span>
             </h1>
             <div className="divider-vintage-ornamental max-w-xs mx-auto"></div>
-            <p className="text-secondary/80 max-w-xl mx-auto font-serif italic text-sm md:text-base">Explore all the captured moments from our festival.</p>
+            <p className="text-secondary/80 max-w-xl mx-auto font-serif italic text-sm md:text-base">Explore all the captured moments from our event.</p>
           </motion.div>
 
           {loading ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
               {[1, 2, 3, 4, 5, 6, 7, 8].map(i => (
-                <div key={i} className="aspect-square bg-surface border border-accent/20 rounded-xl animate-pulse"></div>
+                <div key={i} className="aspect-[4/3] bg-surface border border-accent/20 rounded-xl animate-pulse"></div>
               ))}
             </div>
           ) : images.length > 0 ? (
@@ -93,7 +93,7 @@ function Gallery() {
                   key={index} 
                   variants={itemVariants}
                   whileHover={{ y: -5 }}
-                  className="group relative rounded-xl p-2 bg-surface border border-accent/30 shadow-md aspect-square cursor-pointer"
+                  className="group relative rounded-xl p-2 bg-surface border border-accent/30 shadow-md aspect-[4/3] cursor-pointer"
                 >
                   <img
                     src={src.path}

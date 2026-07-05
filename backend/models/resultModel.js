@@ -25,11 +25,6 @@ const ResultDetailSchema = new mongoose.Schema({
 });
 
 const ResultSchema = new mongoose.Schema({
-  festivalId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Festival",
-    required: false,
-  },
   category: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Category",

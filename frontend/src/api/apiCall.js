@@ -350,11 +350,11 @@ function getFullEventTitle(festOrSettings) {
 }
 
 // ---------------------------------------------------------------------------
-// Single-Tenant Active Festival Resolution
+// Single-Event Config Resolution
 // ---------------------------------------------------------------------------
 
-async function resolveActiveFestival() {
-  const response = await axios.get("/auth/active-festival");
+async function getEventConfig() {
+  const response = await axios.get("/auth/event-config");
   return response.data;
 }
 
@@ -371,7 +371,7 @@ async function changePassword(oldPassword, newPassword) {
 // ---------------------------------------------------------------------------
 
 export {
-  resolveActiveFestival,
+  getEventConfig,
   changePassword,
   getFullEventTitle,
   startProgram,

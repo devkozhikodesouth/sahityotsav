@@ -220,7 +220,7 @@ const refresh = async (req, res) => {
   }
 };
 
-const resolveActiveFestival = async (req, res) => {
+const getEventConfig = async (req, res) => {
   try {
     let festival = await Festival.findOne({ status: "active" });
     if (!festival) {
@@ -230,13 +230,13 @@ const resolveActiveFestival = async (req, res) => {
     if (!festival) {
       return res.status(404).json({
         success: false,
-        message: "No active festival found."
+        message: "No active configuration found."
       });
     }
 
     res.status(200).json({ success: true, data: festival });
   } catch (error) {
-    console.error("Resolve festival error:", error);
+    console.error("Resolve configuration error:", error);
     res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
@@ -275,6 +275,6 @@ module.exports = {
   login,
   logout,
   refresh,
-  resolveActiveFestival,
+  getEventConfig,
   changePassword,
 };

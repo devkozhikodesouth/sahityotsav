@@ -1,10 +1,5 @@
 const mongoose= require('mongoose')
 const itemSchema= new mongoose.Schema({
-    festivalId:{
-        type:mongoose.Schema.Types.ObjectId,
-        ref:'Festival',
-        required:false
-    },
     itemName:{
         type:String,
         required:true

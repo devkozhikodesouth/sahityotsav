@@ -116,7 +116,7 @@ function ImageDownload({ results, category, item, color, image, positions, activ
                     </div>
                     <div 
                       className={`font-fractul ${color}`}
-                      style={{ fontSize: `${12 * scale}px`, marginTop: `${-3 * scale}px` }}
+                      style={{ fontSize: `${12 * scale}px`, marginTop: `${-1 * scale}px`, width:"150px",  lineHeight: "12px" }}
                     >
                       {toNormalCase(item)}
                     </div>
@@ -170,14 +170,14 @@ function ImageDownload({ results, category, item, color, image, positions, activ
                                 <div style={{ display: "flex", flexDirection: "column" }}>
                                   <div 
                                     className={`leading-tight font-fractul font-bold ${color}`}
-                                    style={{ fontSize: `${12 * scale}px` }}
+                                    style={{ fontSize: `${12 * scale}px`, width:"150px" ,lineHeight:"12px" }}
                                   >
                                     {nameText || teamText}
                                   </div>
                                   {nameText && teamText && (
                                     <div 
                                       className={`leading-tight font-fractul-regular ${color}`}
-                                      style={{ fontSize: `${8 * scale}px`, marginTop: `${-1 * scale}px` }}
+                                      style={{ fontSize: `${8 * scale}px`, marginTop: `${2 * scale}px`, width:"150px" }}
                                     >
                                       {teamText}
                                     </div>

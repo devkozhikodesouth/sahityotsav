@@ -124,9 +124,12 @@ axiosInstance.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
+    const isAdminRoute = originalRequest.url.startsWith("/admin") || originalRequest.url.startsWith("admin");
+
     const isTokenError =
       error.response &&
       (error.response.status === 401 || error.response.status === 403) &&
+      isAdminRoute &&
       !originalRequest._retry &&
       !originalRequest.url.includes("/auth");
 
@@ -166,7 +169,6 @@ axiosInstance.interceptors.response.use(
         .catch((refreshError) => {
           processQueue(refreshError, null);
           accessToken = null;
-          localStorage.removeItem("selectedFestival");
           localStorage.removeItem("wasLoggedIn");
           window.location.href = "/admin/login";
           reject(refreshError);

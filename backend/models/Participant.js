@@ -46,11 +46,6 @@ const ParticipantCompetitionSchema = new mongoose.Schema({
 
 const ParticipantSchema = new mongoose.Schema(
   {
-    festivalId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Festival",
-      required: false
-    },
     chestNumber: {
       type: String,
       required: true,

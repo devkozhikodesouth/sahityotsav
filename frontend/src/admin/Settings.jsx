@@ -1,13 +1,11 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useEffect, useState } from "react";
 import { getSettings, updateSettings } from "../api/apiCall";
 import toast, { Toaster } from "react-hot-toast";
 import { ArrowLeft, Save, Globe, Share2, Image as ImageIcon, Sparkles, Hash, Calendar, MapPin, Layers, Users, Info, Key } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { AuthContext } from "../context/AuthContext";
 
 function Settings() {
   const navigate = useNavigate();
-  const { currentFestival, setCurrentFestival } = useContext(AuthContext);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -120,14 +118,7 @@ function Settings() {
           setRightFile(null);
         }
         
-        // Update context and local state
-        setCurrentFestival(prev => ({
-          ...prev,
-          externalApiEnabled: res.externalApiEnabled,
-          externalApiKey: res.externalApiKey,
-          externalBaseUrl: res.externalBaseUrl,
-          teamPointsLimit: res.teamPointsLimit
-        }));
+        // Update local state
         setSettings(prev => ({
           ...prev,
           externalApiEnabled: res.externalApiEnabled || false,
@@ -178,7 +169,7 @@ function Settings() {
             Homepage & Social Settings
           </h2>
           <p className="text-gray-400 text-sm">
-            Customize branding, text details, and social media links for your festival homepage.
+            Customize branding, text details, and social media links for your homepage.
           </p>
         </div>
 

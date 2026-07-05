@@ -2,11 +2,6 @@ const mongoose = require("mongoose");
 
 const newsSchema = new mongoose.Schema(
   {
-    festivalId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Festival",
-      required: false,
-    },
     image: {
       path: {
         type: String,
