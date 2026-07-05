@@ -47,7 +47,7 @@ export default function StudentDetailsPage() {
   const [downloadingId, setDownloadingId] = useState(null);
   const [selectedCertificate, setSelectedCertificate] = useState(null);
   const [previewScale, setPreviewScale] = useState(1);
-  const [certificateBg, setCertificateBg] = useState("/Certificate.jpg");
+  const [certificateBg, setCertificateBg] = useState("/Certificate.webp");
   const [loadingBg, setLoadingBg] = useState(false);
 
   // Dynamic Client-side rendering of PDF background using Mozilla PDF.js via CDN
@@ -103,7 +103,7 @@ export default function StudentDetailsPage() {
         })
         .catch((err) => {
           console.warn("Could not load PDF template background, falling back to JPG:", err);
-          setCertificateBg("/Certificate.jpg");
+          setCertificateBg("/Certificate.webp");
           setLoadingBg(false);
         });
     }
@@ -115,13 +115,13 @@ export default function StudentDetailsPage() {
       const updateScale = () => {
         const paddingWidth = 48; // Left/Right margins
         const paddingHeight = 220; // Header, padding, margins, and action buttons combined height overhead
-        
+
         const scaleWidth = (window.innerWidth - paddingWidth) / 2048;
         const scaleHeight = (window.innerHeight - paddingHeight) / 1448;
-        
+
         // Fit both dimensions cleanly
         const finalScale = Math.min(scaleWidth, scaleHeight);
-        
+
         // Cap the maximum scaling factor to 0.95 for design cleanliness
         setPreviewScale(Math.min(0.95, finalScale));
       };
@@ -132,32 +132,101 @@ export default function StudentDetailsPage() {
   }, [selectedCertificate]);
 
   const handlePdfDownload = async (fullName, competitionName) => {
-    const element = document.getElementById("certificate-print-area");
-    if (!element) return;
-
     setDownloadingId(competitionName);
     try {
-      const canvas = await html2canvas(element, {
-        scale:6, // 2.5x resolution of 2048px results in ~5120px wide print, which is extremely crisp!
-        useCORS: true,
-        allowTaint: true,
-        backgroundColor: null,
-        logging: false,
-        imageTimeout: 0
-      });
-      const imgData = canvas.toDataURL("image/jpeg", 1.0); // 1.0 is maximum quality JPEG compression
+      // Step 1: Explicitly activate Sora font for canvas (document.fonts.ready is NOT enough —
+      // we must call load() with the exact weight/size to guarantee it's usable in canvas 2D context)
+      const fontSpec400 = `400 35px Sora`;
+      const fontSpec600 = `600 35px Sora`;
+      const fontLoads = await Promise.allSettled([
+        document.fonts.load(fontSpec400),
+        document.fonts.load(fontSpec600),
+      ]);
+      // Determine which font family to use — fall back to Georgia if Sora failed to load
+      const fontFamily = fontLoads.some(r => r.status === "fulfilled" && r.value.length > 0)
+        ? "Sora, Georgia, serif"
+        : "Georgia, serif";
 
-      const pdf = new jsPDF({
-        orientation: "landscape",
-        unit: "pt",
-        format: "a4" // Standard A4 Landscape is 841.89 x 595.28 points
+      // Step 2: Load Certificate.webp as an Image (same origin — no CORS needed)
+      const img = await new Promise((resolve, reject) => {
+        const image = new Image();
+        image.onload = () => resolve(image);
+        image.onerror = () => reject(new Error("Failed to load Certificate.webp from /Certificate.webp"));
+        image.src = "/Certificate.webp";
       });
 
+      // Step 3: Draw the certificate template on canvas at its native resolution
+      const canvas = document.createElement("canvas");
+      const W = img.naturalWidth;
+      const H = img.naturalHeight;
+      canvas.width = W;
+      canvas.height = H;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0);
+
+      // Step 4: Draw text overlay with textBaseline = "top" so y matches CSS `top` values
+      ctx.textBaseline = "top";
+
+      const normalizedRank = (() => {
+        const n = String(selectedCertificate.rank).toLowerCase().trim();
+        if (n === "1" || n === "first" || n.startsWith("1st")) return "First";
+        if (n === "2" || n === "second" || n.startsWith("2nd")) return "Second";
+        if (n === "3" || n === "third" || n.startsWith("3rd")) return "Third";
+        return String(selectedCertificate.rank).toUpperCase();
+      })();
+
+      // Scale coordinates proportionally in case WebP size differs from 2048×1448 reference
+      const refW = 2048, refH = 1448;
+      const sx = W / refW;
+      const sy = H / refH;
+
+      const textX = Math.round(174 * sx);
+      const textY = Math.round(819 * sy);
+      const fontSize = Math.round(36* sx);
+      const lineHeight = Math.round(fontSize * 1.65);
+
+      // Draw inline mixed bold/regular text segments
+      const drawMixedLine = (segments, x, y) => {
+        let currentX = x;
+        for (const seg of segments) {
+          const spec = `${seg.bold ? "600" : "400"} ${fontSize}px ${fontFamily}`;
+          ctx.font = spec;
+          ctx.fillStyle = seg.bold ? "#0f172a" : "#2c2c2c";
+          ctx.fillText(seg.text, currentX, y);
+          currentX += ctx.measureText(seg.text).width;
+        }
+      };
+
+      drawMixedLine([
+        { text: "This is to certify that Mr.\u00a0", bold: false },
+        { text: fullName, bold: true },
+        { text: "\u00a0secured\u00a0", bold: false },
+        { text: normalizedRank, bold: true },
+      ], textX, textY);
+
+   drawMixedLine([
+  { text: "Prize in the\u00a0", bold: false },
+  { text: competitionName, bold: true },
+  { text: "\u00a0Competition with\u00a0", bold: false },
+  { text: selectedCertificate.grade, bold: true },
+  { text: "\u00a0Grade at the 33rd", bold: false },
+], textX, textY + lineHeight);
+
+drawMixedLine([
+  { text: "Edition of the Kozhikode South District Sahityotsav, held at", bold: false },
+], textX, textY + lineHeight * 2);
+
+drawMixedLine([
+  { text: "Poonoor from 1 to 5 July 2026.", bold: false },
+], textX, textY + lineHeight * 3);
+      // Step 5: Export as high-quality JPEG and embed into A4 landscape PDF
+      const imgData = canvas.toDataURL("image/jpeg", 0.96);
+      const pdf = new jsPDF({ orientation: "landscape", unit: "pt", format: "a4" });
       pdf.addImage(imgData, "JPEG", 0, 0, 841.89, 595.28, undefined, "FAST");
       pdf.save(`Certificate_${fullName.replace(/\s+/g, "_")}_${competitionName.replace(/\s+/g, "_")}.pdf`);
       toast.success("Certificate downloaded successfully! 🏆");
     } catch (err) {
-      console.error(err);
+      console.error("PDF generation error:", err);
       toast.error("Failed to generate PDF. Please try again.");
     } finally {
       setDownloadingId(null);
@@ -559,8 +628,8 @@ export default function StudentDetailsPage() {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.05 * index }}
                       className={`rounded-2xl border p-5 transition-all shadow-md relative overflow-hidden ${isPublished
-                          ? "bg-slate-900/60 border-slate-800 hover:border-slate-700"
-                          : "bg-slate-900/25 border-slate-900/60 text-slate-400"
+                        ? "bg-slate-900/60 border-slate-800 hover:border-slate-700"
+                        : "bg-slate-900/25 border-slate-900/60 text-slate-400"
                         }`}
                     >
                       <h4 className="text-base font-extrabold text-slate-200 mb-3">{comp.competitionName}</h4>
@@ -673,11 +742,11 @@ export default function StudentDetailsPage() {
               <h3 className="text-lg font-bold text-slate-100 mt-2">Certificate of Merit</h3>
 
               {/* Certificate Scaled Area */}
-              <div 
+              <div
                 className="overflow-hidden flex items-center justify-center bg-slate-950 rounded-2xl border border-slate-850 relative"
-                style={{ 
-                  width: `${2048 * previewScale}px`, 
-                  height: `${1448 * previewScale}px` 
+                style={{
+                  width: `${2048 * previewScale}px`,
+                  height: `${1448 * previewScale}px`
                 }}
               >
 
@@ -701,7 +770,7 @@ export default function StudentDetailsPage() {
                   }}
                 >
                   {/* Certificate Content */}
-                  <div className="absolute left-[174px] top-[819px] z-10 w-[1126px] text-[#2c2c2c]">
+                  <div className="absolute left-[174px] top-[819px] z-10 w-[1100px] text-[#2c2c2c]">
                     <p
                       className="text-[35px] font-regular leading-relaxed font-sans"
                       style={{
