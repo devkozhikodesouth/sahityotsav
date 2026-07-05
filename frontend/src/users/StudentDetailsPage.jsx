@@ -47,65 +47,12 @@ export default function StudentDetailsPage() {
   const [downloadingId, setDownloadingId] = useState(null);
   const [selectedCertificate, setSelectedCertificate] = useState(null);
   const [previewScale, setPreviewScale] = useState(1);
-  const [certificateBg, setCertificateBg] = useState("/Certificate.webp");
-  const [loadingBg, setLoadingBg] = useState(false);
+  const [bgLoaded, setBgLoaded] = useState(false);
 
-  // Dynamic Client-side rendering of PDF background using Mozilla PDF.js via CDN
+  // Reset bgLoaded whenever a new certificate is opened so overlay shows during image fetch
   useEffect(() => {
     if (selectedCertificate) {
-      setLoadingBg(true);
-
-      const loadPdfJs = () => {
-        return new Promise((resolve, reject) => {
-          if (window.pdfjsLib) {
-            resolve(window.pdfjsLib);
-            return;
-          }
-          const script = document.createElement("script");
-          script.src = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js";
-          script.onload = () => {
-            window.pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js";
-            resolve(window.pdfjsLib);
-          };
-          script.onerror = () => reject(new Error("Failed to load PDF library."));
-          document.head.appendChild(script);
-        });
-      };
-
-      const convertPdfToImage = async (pdfUrl) => {
-        const pdfjsLib = await loadPdfJs();
-        const loadingTask = pdfjsLib.getDocument(pdfUrl);
-        const pdf = await loadingTask.promise;
-        const page = await pdf.getPage(1);
-
-        // Dynamically compute the required scale to render the PDF page at exactly 2048px width
-        const viewportOriginal = page.getViewport({ scale: 1.0 });
-        const targetScale = 2048 / viewportOriginal.width;
-        const viewport = page.getViewport({ scale: targetScale });
-
-        const canvas = document.createElement("canvas");
-        const context = canvas.getContext("2d");
-        canvas.width = viewport.width;
-        canvas.height = viewport.height;
-
-        await page.render({
-          canvasContext: context,
-          viewport: viewport
-        }).promise;
-
-        return canvas.toDataURL("image/jpeg", 1.0);
-      };
-
-      convertPdfToImage("/Certificate.pdf")
-        .then((dataUrl) => {
-          setCertificateBg(dataUrl);
-          setLoadingBg(false);
-        })
-        .catch((err) => {
-          console.warn("Could not load PDF template background, falling back to JPG:", err);
-          setCertificateBg("/Certificate.webp");
-          setLoadingBg(false);
-        });
+      setBgLoaded(false);
     }
   }, [selectedCertificate]);
 
@@ -774,10 +721,10 @@ export default function StudentDetailsPage() {
             {/* Modal Card wrapper */}
             <div className="w-full max-w-4xl bg-slate-900 border border-slate-800 rounded-3xl p-6 flex flex-col items-center gap-6 shadow-2xl relative">
 
-              {/* Close Button */}
+              {/* Close Button — visible on mobile only, hidden on desktop */}
               <button
                 onClick={() => setSelectedCertificate(null)}
-                className="absolute top-4 right-4 p-2.5 bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white rounded-full transition-all flex items-center justify-center"
+                className="absolute top-4 right-4 p-2.5 bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white rounded-full transition-all flex md:hidden items-center justify-center"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
@@ -795,10 +742,11 @@ export default function StudentDetailsPage() {
                 }}
               >
 
-                {loadingBg && (
-                  <div className="absolute inset-0 z-20 bg-slate-950/75 flex flex-col items-center justify-center gap-3">
-                    <div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
-                    <span className="text-xs text-slate-400 font-medium">Loading high-res PDF template...</span>
+                {/* Full-opacity loading overlay — hides until Certificate.webp is fully loaded */}
+                {!bgLoaded && (
+                  <div className="absolute inset-0 z-30 bg-slate-950 flex flex-col items-center justify-center gap-4 rounded-2xl">
+                    <div className="w-10 h-10 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+                    <span className="text-sm text-slate-400 font-medium tracking-wide">Loading certificate...</span>
                   </div>
                 )}
 
@@ -809,11 +757,18 @@ export default function StudentDetailsPage() {
                   style={{
                     transform: `scale(${previewScale})`,
                     transformOrigin: "center center",
-                    backgroundImage: `url('${certificateBg}')`,
                     backgroundSize: "cover",
                     backgroundPosition: "center"
                   }}
                 >
+                  {/* Hidden img to detect when Certificate.webp has fully loaded */}
+                  <img
+                    src="/Certificate.webp"
+                    alt=""
+                    className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+                    onLoad={() => setBgLoaded(true)}
+                    aria-hidden="true"
+                  />
                   {/* Certificate Content */}
                   <div className="absolute left-[174px] top-[819px] z-10 w-[1100px] text-[#2c2c2c]">
                     <p
@@ -871,9 +826,10 @@ export default function StudentDetailsPage() {
                   )}
                 </button>
 
+                {/* Bottom Close — visible on desktop only, hidden on mobile */}
                 <button
                   onClick={() => setSelectedCertificate(null)}
-                  className="flex-1 sm:flex-none px-6 py-3.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-2xl font-semibold text-sm transition-all active:scale-95"
+                  className="flex-1 sm:flex-none px-6 py-3.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-2xl font-semibold text-sm transition-all active:scale-95 hidden md:block"
                 >
                   Close
                 </button>
