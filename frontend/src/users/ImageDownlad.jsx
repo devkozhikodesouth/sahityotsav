@@ -124,7 +124,7 @@ function ImageDownload({ results, category, item, color, image, positions, activ
 
                   <div 
                     className="text-start"
-                    style={{ marginTop: `${10 * scale}px`, paddingLeft: `${1 * scale}px` }}
+                    style={{ marginTop: `${15 * scale}px`, paddingLeft: `${1 * scale}px` }}
                   >
                     {results?.result?.map((result, index) => {
                       let winners = [];
@@ -140,7 +140,7 @@ function ImageDownload({ results, category, item, color, image, positions, activ
                       const activeWinners = winners.filter(w => w.name || w.team || w.teamId?.teamName);
 
                       return (
-                        <div key={index} style={{ marginBottom: `${10 * scale}px` }}>
+                        <div key={index} style={{ marginBottom: `${12 * scale}px` }}>
                           {activeWinners.map((winner, wIdx) => {
                             const nameText = winner.name ? toNormalCase(winner.name) : "";
                             const teamText = toNormalCase(winner.teamId?.teamName || winner.team || "");
@@ -157,7 +157,7 @@ function ImageDownload({ results, category, item, color, image, positions, activ
                               >
                                 {/* Left Side: Rank Number */}
                                 <div 
-                                  className={`leading-tight font-biorhyme font-bold ${color}`}
+                                  className={`leading-tight font-fractul font-medium ${color}`}
                                   style={{ 
                                     fontSize: `${12 * scale}px`, 
                                     minWidth: `${14 * scale}px`, 
@@ -169,15 +169,15 @@ function ImageDownload({ results, category, item, color, image, positions, activ
                                 {/* Right Side: Name & Team Details */}
                                 <div style={{ display: "flex", flexDirection: "column" }}>
                                   <div 
-                                    className={`leading-tight font-fractul font-bold ${color}`}
-                                    style={{ fontSize: `${12 * scale}px`, width:"145px" ,lineHeight:"12px" }}
+                                    className={`leading-tight font-fractul font-medium   ${color}`}
+                                    style={{ fontSize: `${11 * scale}px`, width:"145px" ,lineHeight:"12px" }}
                                   >
                                     {nameText || teamText}
                                   </div>
                                   {nameText && teamText && (
                                     <div 
                                       className={`leading-tight font-fractul-regular ${color}`}
-                                      style={{ fontSize: `${8 * scale}px`, marginTop: `${2 * scale}px`, width:"150px" }}
+                                      style={{ fontSize: `${8 * scale}px`, marginTop: `${1 * scale}px`, width:"150px" }}
                                     >
                                       {teamText}
                                     </div>
