@@ -182,43 +182,88 @@ export default function StudentDetailsPage() {
 
       const textX = Math.round(174 * sx);
       const textY = Math.round(819 * sy);
-      const fontSize = Math.round(36* sx);
-      const lineHeight = Math.round(fontSize * 1.65);
+      const baseFontSize = Math.round(36 * sx);
+      const maxLineWidth = Math.round(1126 * sx); // max width of text area (scaled)
+      const lineHeight = Math.round(baseFontSize * 1.65);
 
-      // Draw inline mixed bold/regular text segments
-      const drawMixedLine = (segments, x, y) => {
-        let currentX = x;
-        for (const seg of segments) {
-          const spec = `${seg.bold ? "600" : "400"} ${fontSize}px ${fontFamily}`;
-          ctx.font = spec;
-          ctx.fillStyle = seg.bold ? "#0f172a" : "#2c2c2c";
-          ctx.fillText(seg.text, currentX, y);
-          currentX += ctx.measureText(seg.text).width;
-        }
+      // Measure total width of a line at a given fontSize
+      const measureLine = (segments, size) => {
+        return segments.reduce((total, seg) => {
+          ctx.font = `${seg.bold ? "600" : "400"} ${size}px ${fontFamily}`;
+          return total + ctx.measureText(seg.text).width;
+        }, 0);
       };
 
-      drawMixedLine([
+      // Word-wrap mixed bold/regular segments within maxLineWidth
+      // Returns array of lines, each line being array of { text, bold } tokens
+      const wrapMixedSegments = (segments, maxW) => {
+        const wrappedLines = [[]];
+        let lineWidth = 0;
+
+        for (const seg of segments) {
+          // Split on spaces but keep the space as part of the next token prefix
+          const words = seg.text.split(/(?<=\s)|(?=\s)/);
+          for (const word of words) {
+            if (!word) continue;
+            ctx.font = `${seg.bold ? "600" : "400"} ${baseFontSize}px ${fontFamily}`;
+            const wordWidth = ctx.measureText(word).width;
+            const lastLine = wrappedLines[wrappedLines.length - 1];
+            const isWhitespace = /^\s+$/.test(word);
+
+            if (lineWidth + wordWidth <= maxW || lastLine.length === 0) {
+              lastLine.push({ text: word, bold: seg.bold });
+              lineWidth += wordWidth;
+            } else if (isWhitespace) {
+              // Trailing whitespace that caused overflow: start new line, discard space
+              wrappedLines.push([]);
+              lineWidth = 0;
+            } else {
+              // Real word that overflows: wrap to new line
+              wrappedLines.push([{ text: word, bold: seg.bold }]);
+              lineWidth = wordWidth;
+            }
+          }
+        }
+
+        return wrappedLines.filter(line => line.length > 0);
+      };
+
+      // Draw wrapped segments; returns number of lines rendered (used to advance y)
+      const drawMixedLine = (segments, x, y) => {
+        const lines = wrapMixedSegments(segments, maxLineWidth);
+        for (let i = 0; i < lines.length; i++) {
+          let currentX = x;
+          for (const token of lines[i]) {
+            ctx.font = `${token.bold ? "600" : "400"} ${baseFontSize}px ${fontFamily}`;
+            ctx.fillStyle = token.bold ? "#0f172a" : "#2c2c2c";
+            ctx.fillText(token.text, currentX, y + i * lineHeight);
+            currentX += ctx.measureText(token.text).width;
+          }
+        }
+        return lines.length;
+      };
+
+      // Draw each paragraph block; y advances by the number of wrapped lines rendered
+      let currentY = textY;
+      currentY += drawMixedLine([
         { text: "This is to certify that Mr.\u00a0", bold: false },
         { text: fullName, bold: true },
         { text: "\u00a0secured\u00a0", bold: false },
         { text: normalizedRank, bold: true },
-      ], textX, textY);
+      ], textX, currentY) * lineHeight;
 
-   drawMixedLine([
-  { text: "Prize in the\u00a0", bold: false },
-  { text: competitionName, bold: true },
-  { text: "\u00a0Competition with\u00a0", bold: false },
-  { text: selectedCertificate.grade, bold: true },
-  { text: "\u00a0Grade at the 33rd", bold: false },
-], textX, textY + lineHeight);
+      currentY += drawMixedLine([
+        { text: "Prize in the\u00a0", bold: false },
+        { text: competitionName, bold: true },
+        { text: "\u00a0Competition with\u00a0", bold: false },
+        { text: selectedCertificate.grade, bold: true },
+        { text: "\u00a0Grade at the 33rd Edition of the Kozhikode South District Sahityotsav, held at Poonoor from 1 to 5 July 2026.", bold: false },
+      ], textX, currentY) * lineHeight;
 
-drawMixedLine([
-  { text: "Edition of the Kozhikode South District Sahityotsav, held at", bold: false },
-], textX, textY + lineHeight * 2);
 
-drawMixedLine([
-  { text: "Poonoor from 1 to 5 July 2026.", bold: false },
-], textX, textY + lineHeight * 3);
+
+
+
       // Step 5: Export as high-quality JPEG and embed into A4 landscape PDF
       const imgData = canvas.toDataURL("image/jpeg", 0.96);
       const pdf = new jsPDF({ orientation: "landscape", unit: "pt", format: "a4" });
