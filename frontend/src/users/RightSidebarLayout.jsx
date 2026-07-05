@@ -8,7 +8,9 @@ import {
   FaChartBar,
   FaMapMarkedAlt,
   FaCompass,
-  FaAward
+  FaAward,
+  FaCalendarAlt,
+  FaUserGraduate
 } from "react-icons/fa";
 import { MdLiveTv, MdClose } from "react-icons/md";
 import { TiThMenu } from "react-icons/ti";
@@ -51,13 +53,13 @@ export default function RightSidebarLayout({ festival }) {
     { name: "Home", icon: <FaHome />, href: "#home" },
     { name: "Live", icon: <MdLiveTv />, href: "#live", featureKey: "live" },
     { name: "Videos", icon: <FaVideo />, href: "#videos", featureKey: "videos" },
+    { name: "Schedule", icon: <FaCalendarAlt />, href: "#schedule", featureKey: "schedule" },
     { name: "Results", icon: <FaTrophy />, href: "#results", featureKey: "results" },
-    { name: "Student Details", icon: <FaAward />, href: "#student-details", featureKey: "studentDetails" },
     { name: "Total Point", icon: <FaChartBar />, href: "#total-point", featureKey: "teamPoints" },
     { name: "Gallery", icon: <FaImages />, href: "#gallery", featureKey: "gallery" },
     { name: "Map", icon: <FaMapMarkedAlt />, path: "/map", featureKey: "map" },
     { name: "About", icon: <FaInfoCircle />, path: "/about", featureKey: "theme" },
-    { name: "Hits Different", icon: <FaCompass />, path: "/hits-different" },
+    { name: "Participant Login", icon: <FaUserGraduate />, path: "/student" },
   ];
 
   const isFeatureEnabled = (key) => {

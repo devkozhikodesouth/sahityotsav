@@ -15,7 +15,7 @@ import Theme from "./Theme.jsx";
 import Maps from "./Maps.jsx";
 import ShowNews from "./ShowNews.jsx";
 import AdsBanner from "./AdsBanner.jsx";
-import StudentDetails from "./StudentDetails.jsx";
+import Schedule from "./Schedule.jsx";
 function UserSide({ festival, onOpenMenu }) {
   const [buttonShow, setButtonShow] = useState(false);
   const [features, setFeatures] = useState([]);
@@ -42,11 +42,11 @@ function UserSide({ festival, onOpenMenu }) {
     gallery: <Gallery />,
     ads:<AdsBanner />,
     results: <Results festival={festival} />,
-    studentDetails: <StudentDetails festival={festival} />,
     news:     <ShowNews/>,
     teamPoints: <TeamPoint festival={festival} />,
     theme: <Theme/>,
     map: <Maps festival={festival}/>,
+    schedule: <Schedule festival={festival} />,
   };
 
   // Show scroll-to-top button logic

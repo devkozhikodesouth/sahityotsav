@@ -165,13 +165,13 @@ export default function Home({ festival, onOpenMenu }) {
             >
               🏆 explore results
             </motion.button>
-        <Link to="/hits-different">
+        <Link to="/student">
   <motion.button
     whileHover={{ scale: 1.02 }}
     whileTap={{ scale: 0.98 }}
     className="w-full sm:w-auto bg-white/5 text-white border border-accent/40 hover:bg-white/10 px-8 py-4 rounded-xl font-heading font-semibold tracking-wider uppercase shadow-sm transition-all duration-200 backdrop-blur-sm"
   >
-    Hits Different
+    Participant Login
   </motion.button>
 </Link>
           </motion.div>

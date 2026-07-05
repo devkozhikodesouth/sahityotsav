@@ -468,6 +468,11 @@ async function getProxyTeamPoints(teamTypeName = "") {
   return response.data;
 }
 
+async function getProxySchedule() {
+  const response = await axios.get("/external-schedule");
+  return response.data;
+}
+
 export {
   getPublicCompetitions,
   getPublicCompetitionResults,
@@ -476,4 +481,5 @@ export {
   getProxyCompetitions,
   getProxyCompetitionResults,
   getProxyTeamPoints,
+  getProxySchedule,
 };

@@ -25,6 +25,7 @@ const authRoutes = require("./authRoutes");
 const publicApiRoutes = require("./publicApiRoutes");
 
 router.use("/auth", authRoutes);
+router.get("/public/participant/:chestNumber", dataController.getParticipantDetailsByChestNumber);
 router.use("/public", publicApiRoutes);
 
 // 2. Public Guest routes (NO authentication required)
@@ -56,6 +57,7 @@ guestRouter.get("/external-competitions", dataController.getExternalCompetitions
 guestRouter.get("/external-results/:competitionId", dataController.getExternalResults);
 guestRouter.get("/external-teampoints", dataController.getExternalTeamPoints);
 guestRouter.get("/external-participant-details", dataController.getExternalParticipantDetails);
+guestRouter.get("/external-schedule", dataController.getExternalSchedule);
 
 // Mount the guest routes
 router.use("/", guestRouter);

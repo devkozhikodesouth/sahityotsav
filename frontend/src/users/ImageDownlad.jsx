@@ -1,6 +1,7 @@
 import React, { useRef, useState, useEffect } from "react";
 import html2canvas from "html2canvas";
 import toast from "react-hot-toast";
+import { Download } from "lucide-react";
 
 const toNormalCase = (str) => {
   if (!str) return "";
@@ -99,6 +100,7 @@ function ImageDownload({ results, category, item, color, image, positions, activ
                   className="max-w-full object-cover h-full w-full"
                   src={image}
                   alt="Background"
+                  crossOrigin="anonymous"
                 />
                 <div
                   className="absolute flex flex-col text-left"
@@ -213,9 +215,10 @@ function ImageDownload({ results, category, item, color, image, positions, activ
           {/* Download Button (Excluded from download element) */}
           <button
             onClick={handleDownloadImage}
-            className="mb-4 px-6 py-2 bg-black text-white font-semibold rounded-md hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-opacity-50"
+            className="group flex items-center justify-center gap-2 px-8 py-3.5 bg-primary text-surface rounded-xl font-heading font-bold border border-accent/40 shadow-md hover:bg-primary-light hover:border-accent/70 transition-all text-sm uppercase tracking-wider mb-6 mt-4"
           >
-            Download
+            <Download className="w-4 h-4 text-accent group-hover:scale-110 transition-transform" />
+            <span>Download Result Card</span>
           </button>
 
 

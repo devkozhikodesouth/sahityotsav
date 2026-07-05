@@ -67,10 +67,28 @@ app.use(morgan("dev"));
 app.use(express.urlencoded({ extended: true }));
 
 
+const allowedOrigins = [
+  process.env.FRONTEND_URL,
+  "http://localhost:5173",
+  "http://localhost:3000",
+  "http://127.0.0.1:5173"
+].filter(Boolean);
+
 app.use(cors({
   origin: function (origin, callback) {
-    // In single-tenant mode, allow any origin
-    return callback(null, true);
+    // allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    const isAllowed = allowedOrigins.includes(origin) || 
+                      origin.endsWith(".sahityotsav.com") || 
+                      origin.includes("localhost") || 
+                      origin.includes("127.0.0.1");
+                      
+    if (isAllowed) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
   },
   credentials: true
 }));

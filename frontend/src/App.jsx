@@ -32,6 +32,7 @@ import VideoPage from "./users/VideoPage.jsx";
 import MapPage from "./users/MapPage.jsx";
 import NewsDetails from "./components/NewsDetails.jsx";
 import NewsAdd from "./admin/NewsAdd.jsx";
+import StudentDetailsPage from "./users/StudentDetailsPage.jsx";
 
 // Portal Pages
 import RightSidebarLayout from "./users/RightSidebarLayout.jsx";
@@ -111,6 +112,7 @@ function App() {
         <Route path="/gallerypage" element={<GalleryPage />} />
         <Route path="/videopage" element={<VideoPage />} />
         <Route path="/hits-different" element={<HitsDifferent />} />
+        <Route path="/student" element={<StudentDetailsPage />} />
 
         {/* Admin Login */}
         <Route

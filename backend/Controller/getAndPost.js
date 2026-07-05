@@ -151,7 +151,7 @@ const getData = async (req, res) => {
     const resultData = await Result.findOne({
       category,
       item,
-      })
+    })
       .populate("category item")
       .populate("result.winners.teamId");
 
@@ -184,7 +184,7 @@ const getData = async (req, res) => {
       const itemData = await Item.findOne({
         categoryName: category,
         _id: item,
-        }).populate("categoryName");
+      }).populate("categoryName");
 
       return res.status(200).json({
         data: {
@@ -368,7 +368,7 @@ const postData = async (req, res) => {
     const existingData = await Result.findOne({
       category: categoryId,
       item: itemId,
-      });
+    });
 
     if (existingData) {
       existingData.result = resultData;
@@ -412,7 +412,7 @@ const deleteResult = async (req, res) => {
     const { id } = req.params;
     const deletedResult = await Result.findOneAndDelete({
       _id: id,
-      });
+    });
     if (deletedResult) {
       res.status(200).json({ success: true, message: "Result deleted successfully" });
     } else {
@@ -544,7 +544,8 @@ const getFeature = async (req, res) => {
       { name: "gallery", default: true },
       { name: "theme", default: false },
       { name: "map", default: false },
-      { name: "studentDetails", default: true }
+      { name: "studentDetails", default: true },
+      { name: "schedule", default: true }
     ];
 
     if (features.length === 0) {
@@ -590,7 +591,8 @@ const resetFeature = async (req, res) => {
       { name: "gallery", enabled: true },
       { name: "theme", enabled: false },
       { name: "map", enabled: false },
-      { name: "studentDetails", enabled: true }
+      { name: "studentDetails", enabled: true },
+      { name: "schedule", enabled: true }
     ]);
 
     res.status(200).json({
@@ -607,7 +609,7 @@ const getResultCount = async (req, res) => {
   try {
     const countDoc = await Count.findOne({
       name: "resultViews",
-      });
+    });
     const count = countDoc ? countDoc.value : 0;
     res.status(200).json({ success: true, count });
   } catch (error) {
@@ -841,6 +843,54 @@ const getExternalTeamPoints = async (req, res) => {
   }
 };
 
+const getExternalSchedule = async (req, res) => {
+  try {
+    const festival = await Festival.findOne();
+    if (!festival) {
+      return res.status(404).json({ success: false, message: "Festival not found" });
+    }
+
+    if (festival.externalApiEnabled && festival.externalBaseUrl) {
+      let baseUrl = festival.externalBaseUrl.trim();
+      if (baseUrl.endsWith("/")) {
+        baseUrl = baseUrl.slice(0, -1);
+      }
+
+      const response = await axios.get(`${baseUrl}/public/schedule`, {
+        headers: { "x-api-key": festival.externalApiKey }
+      });
+
+      const resData = response.data;
+      if (resData && resData.status === 200 && resData.data) {
+        const { stages, schedule } = resData.data;
+        if (Array.isArray(stages)) {
+          stages.forEach(stage => {
+            if (!stage.name) {
+              stage.name = `Stage ${stage.number || stage.id || ""}`;
+            }
+          });
+        }
+        if (Array.isArray(schedule)) {
+          schedule.forEach(item => {
+            if (!item.stageName) {
+              const matchedStage = stages && stages.find(s => s.id === item.stageId || s.number === item.stageNumber);
+              item.stageName = matchedStage ? matchedStage.name : `Stage ${item.stageNumber || ""}`;
+            }
+          });
+        }
+      }
+
+      return res.status(200).json(resData);
+    }
+
+    const publicApiController = require("./publicApiController");
+    return publicApiController.getSchedule(req, res);
+  } catch (error) {
+    console.error("Proxy Schedule Error:", error.message);
+    res.status(error.response?.status || 500).json(error.response?.data || { success: false, message: "Proxy fetch failed" });
+  }
+};
+
 const getExternalParticipantDetails = async (req, res) => {
   try {
     const { chestNumber, dob } = req.query;
@@ -940,6 +990,103 @@ const getExternalParticipantDetails = async (req, res) => {
   }
 };
 
+const getParticipantDetailsByChestNumber = async (req, res) => {
+  try {
+    const { chestNumber } = req.params;
+
+    if (!chestNumber) {
+      return res.status(400).json({
+        msg: "Bad Request: chestNumber is required.",
+        status: 400,
+        additionalInfo: {}
+      });
+    }
+
+    const festival = await Festival.findOne();
+    if (!festival) {
+      return res.status(404).json({ success: false, message: "Festival not found" });
+    }
+
+    // If external API is enabled, proxy the request to the external server
+    if (festival.externalApiEnabled && festival.externalBaseUrl) {
+      let baseUrl = festival.externalBaseUrl.trim();
+      if (baseUrl.endsWith("/")) {
+        baseUrl = baseUrl.slice(0, -1);
+      }
+
+      const response = await axios.get(`${baseUrl}/public/participant/${chestNumber}`, {
+        headers: { "x-api-key": festival.externalApiKey }
+      });
+      return res.status(200).json(response.data);
+    }
+
+    // Direct local DB lookup — fallback when external API not enabled
+    const participant = await Participant.findOne({
+      chestNumber: { $regex: new RegExp(`^${chestNumber.trim()}$`, "i") }
+    });
+
+    if (!participant) {
+      return res.status(404).json({
+        msg: "Participant not found for the provided chest number.",
+        status: 404,
+        additionalInfo: {}
+      });
+    }
+
+    const competitions = participant.competitions || [];
+    const totalCompetitions = competitions.length;
+    const completedCompetitions = competitions.filter(c => c.result && c.result.published).length;
+    const prizesWon = competitions.filter(c => c.prize && c.prize.exists && c.result && c.result.rank <= 3).length;
+    const prizesPendingCollection = competitions.filter(c => c.prize && c.prize.exists && !c.prize.isCollected).length;
+
+    res.status(200).json({
+      msg: "Participant details fetched successfully",
+      status: 200,
+      data: {
+        participant: {
+          id: participant._id,
+          chestNumber: participant.chestNumber,
+          fullName: participant.fullName,
+          gender: participant.gender,
+          category: participant.category,
+          teamName: participant.teamName,
+          photo: participant.photo,
+          eventName: participant.eventName || festival.name
+        },
+        competitionOverview: {
+          totalCompetitions,
+          completedCompetitions,
+          prizesWon,
+          prizesPendingCollection
+        },
+        competitions: competitions.map(c => ({
+          competitionId: c.competitionId,
+          competitionName: c.competitionName,
+          result: c.result && c.result.published ? {
+            published: true,
+            qualified: c.result.qualified,
+            rank: c.result.rank,
+            grade: c.result.grade,
+            point: c.result.point
+          } : {
+            published: false
+          },
+          prize: c.prize && c.prize.exists ? {
+            exists: true,
+            title: c.prize.title,
+            isCollected: c.prize.isCollected
+          } : {
+            exists: false
+          }
+        }))
+      }
+    });
+  } catch (error) {
+    console.error("Get Participant Details by Chest Number Error:", error.message);
+    res.status(error.response?.status || 500).json(error.response?.data || { success: false, message: "Server error" });
+  }
+};
+
 module.exports = {
   startProgram,
   checkStartProgram,
@@ -965,8 +1112,10 @@ module.exports = {
   getExternalResults,
   getExternalTeamPoints,
   getExternalParticipantDetails,
+  getExternalSchedule,
   uploadTemplateDynamic,
   deleteTemplateDynamic,
+  getParticipantDetailsByChestNumber,
 };
 
 async function uploadTemplateDynamic(req, res) {
@@ -995,7 +1144,7 @@ async function uploadTemplateDynamic(req, res) {
     existingImages.templates.push(newTemplate);
     const updatedData = await existingImages.save();
     const savedTemplate = updatedData.templates[updatedData.templates.length - 1];
-    
+
     res.status(201).json({ success: true, data: savedTemplate, allTemplates: updatedData.templates });
   } catch (err) {
     console.error("Upload template error:", err);

@@ -2,6 +2,12 @@ const User = require("../models/User");
 const Festival = require("../models/Festival");
 const jwt = require("jsonwebtoken");
 
+const crypto = require("crypto");
+
+// Generate cryptographically secure random fallback secrets on application startup
+const dynamicAccessFallback = crypto.randomBytes(64).toString("hex");
+const dynamicRefreshFallback = crypto.randomBytes(64).toString("hex");
+
 // JWT Helpers
 const generateAccessToken = (user) => {
   return jwt.sign(
@@ -10,15 +16,17 @@ const generateAccessToken = (user) => {
       username: user.username,
       role: user.role,
     },
-    process.env.ACCESS_TOKEN_SECRET || "85adfb4a1cf648fb9eededf3be99702_access_secret_key_1293",
+    process.env.ACCESS_TOKEN_SECRET || dynamicAccessFallback,
     { expiresIn: "15m" }
   );
 };
 
 const generateRefreshToken = (user) => {
-  return jwt.sign({ id: user._id }, process.env.REFRESH_TOKEN_SECRET || "85adfb4a1cf648fb9eededf3be99702_refresh_secret_key_1293", {
-    expiresIn: "7d",
-  });
+  return jwt.sign(
+    { id: user._id },
+    process.env.REFRESH_TOKEN_SECRET || dynamicRefreshFallback,
+    { expiresIn: "7d" }
+  );
 };
 
 const getCookieOptions = (req) => {
