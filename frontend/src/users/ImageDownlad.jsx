@@ -170,7 +170,7 @@ function ImageDownload({ results, category, item, color, image, positions, activ
                                 <div style={{ display: "flex", flexDirection: "column" }}>
                                   <div 
                                     className={`leading-tight font-fractul font-bold ${color}`}
-                                    style={{ fontSize: `${12 * scale}px`, width:"150px" ,lineHeight:"12px" }}
+                                    style={{ fontSize: `${12 * scale}px`, width:"145px" ,lineHeight:"12px" }}
                                   >
                                     {nameText || teamText}
                                   </div>
