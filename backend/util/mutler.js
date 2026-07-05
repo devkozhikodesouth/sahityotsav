@@ -40,106 +40,51 @@ const multer = require("multer");
 
 
 
-const { CloudinaryStorage } = require('multer-storage-cloudinary');
-const cloudinary = require('./cloudinary.js'); // Ensure this path is correct
+const storage = multer.memoryStorage();
 
-const templateStorage = new CloudinaryStorage({
-  cloudinary: cloudinary,
-  params: {
-    folder: 'template_images', // Adjust as needed
-    allowed_formats: ['jpg', 'jpeg', 'png', 'webp'] // Adjust formats if needed
-  }
-});
-
-const bochureStorage= new CloudinaryStorage({
-  cloudinary:cloudinary,
-  params:{
-    folder:'brochure_Images',
-    allowed_formats:['jpg','jpeg',"png","webp"]
-  }
-})
-
-const gallerytorage= new CloudinaryStorage({
-  cloudinary:cloudinary,
-  params:{
-    folder:'gallery_Images',
-    allowed_formats:['jpg','jpeg',"png","webp"]
-  }
-})
-const newsStorage= new CloudinaryStorage({
-  cloudinary:cloudinary,
-  params:{
-    folder:'news_Images',
-    allowed_formats:['jpg','jpeg',"png","webp"]
-  }
-})
-const uploadTemplate = multer({ storage: templateStorage });
-const uploadBrochure= multer({storage:bochureStorage})
-const galleryMemoryStorage = multer.memoryStorage();
-const uploadGallery = multer({
-  storage: galleryMemoryStorage,
+const upload = multer({
+  storage: storage,
   limits: { fileSize: 10 * 1024 * 1024 } // 10MB limit per file
 });
-const uploadNews= multer({storage:newsStorage})
 
-const galleryImagesUpload = uploadGallery.fields([
+const templateImagesUpload = upload.fields([
+  { name: 'image1', maxCount: 1 },
+  { name: 'image2', maxCount: 1 },
+  { name: 'image3', maxCount: 1 }
+]);
+
+const brochureImageUpload = upload.fields([
+  { name: 'image1', maxCount: 1 },
+  { name: 'image2', maxCount: 1 },
+  { name: 'image3', maxCount: 1 }
+]);
+
+const galleryImagesUpload = upload.fields([
   { name: "image", maxCount: 1 },
   { name: "images[]", maxCount: 50 },
   { name: "images", maxCount: 50 }
 ]);
-const newsImagesUpload = uploadNews.single("image");
 
-const templateImagesUpload = uploadTemplate.fields([
-  { name: 'image1', maxCount: 1 },
-  { name: 'image2', maxCount: 1 },
-  { name: 'image3', maxCount: 1 },
- 
-]);
+const newsImagesUpload = upload.single("image");
 
-const brochureImageUpload= uploadBrochure.fields([
-  {name:'image1', maxCount:1},
-  {name:'image2', maxCount:1},
-  {name:'image3', maxCount:1},
-
-]
-)
-
-
-
-const settingsStorage = new CloudinaryStorage({
-  cloudinary: cloudinary,
-  params: {
-    folder: 'settings_images',
-    allowed_formats: ['jpg', 'jpeg', 'png', 'webp']
-  }
-});
-const uploadSettings = multer({ storage: settingsStorage });
-const settingsImagesUpload = uploadSettings.fields([
+const settingsImagesUpload = upload.fields([
   { name: 'bannerImage', maxCount: 1 },
   { name: 'rightImage', maxCount: 1 }
 ]);
 
-const adsStorage = new CloudinaryStorage({
-  cloudinary: cloudinary,
-  params: {
-    folder: 'ads_Images',
-    allowed_formats: ['jpg', 'jpeg', 'png', 'webp']
-  }
-});
-const uploadAds = multer({ storage: adsStorage });
-const adsImageUpload = uploadAds.single("image");
+const adsImageUpload = upload.single("image");
 
-const templateSingleUpload = uploadTemplate.single("image");
+const templateSingleUpload = upload.single("image");
 
-module.exports={
-    templateImagesUpload,
-    brochureImageUpload,
-    galleryImagesUpload,
-    newsImagesUpload,
-    settingsImagesUpload,
-    adsImageUpload,
-    templateSingleUpload
-}
+module.exports = {
+  templateImagesUpload,
+  brochureImageUpload,
+  galleryImagesUpload,
+  newsImagesUpload,
+  settingsImagesUpload,
+  adsImageUpload,
+  templateSingleUpload
+};
 
 
 

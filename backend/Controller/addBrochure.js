@@ -20,10 +20,14 @@ const addBrochure = async (req, res) => {
               console.error("Error deleting brochure image:", error);
             }
           }
+          
+          // Upload new image to Cloudinary
+          const result = await cloudinary.uploadStream(newImage.buffer, "brochure_Images");
+
           // Update image
           brochureData[field] = {
-            path: newImage.path,
-            public_id: newImage.filename,
+            path: result.secure_url,
+            public_id: result.public_id,
           };
         }
       }
@@ -34,9 +38,10 @@ const addBrochure = async (req, res) => {
       for (const field of brochures) {
         if (req.files[field]) {
           const file = req.files[field][0];
+          const result = await cloudinary.uploadStream(file.buffer, "brochure_Images");
           newBrochure[field] = {
-            path: file.path,
-            public_id: file.filename,
+            path: result.secure_url,
+            public_id: result.public_id,
           };
         }
       }

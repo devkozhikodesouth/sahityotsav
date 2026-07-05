@@ -6,6 +6,8 @@ const saveAd = async (req, res) => {
     const file = req.file;
     if (!file) return res.status(400).json({ success: false, error: "No image uploaded" });
 
+    const result = await cloudinary.uploadStream(file.buffer, "ads_Images");
+
     const { title, link, minRank, maxRank, startRange, endRange } = req.body;
 
     // Use startRange/endRange if provided, otherwise fallback to minRank/maxRank
@@ -16,8 +18,8 @@ const saveAd = async (req, res) => {
     const parsedMaxRank = finalEndRange !== undefined && finalEndRange !== "" ? Number(finalEndRange) : null;
 
     const newAd = await Ad.create({
-      path: file.path, // Cloudinary secure_url
-      publicId: file.filename, // Cloudinary public_id
+      path: result.secure_url, // Cloudinary secure_url
+      publicId: result.public_id, // Cloudinary public_id
       link: link || "",
       title: title || "",
       minRank: isNaN(parsedMinRank) ? null : parsedMinRank,

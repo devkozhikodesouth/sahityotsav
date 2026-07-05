@@ -7,10 +7,12 @@ const saveNews = async (req, res) => {
     const file = req.file;
     if (!file) return res.status(400).json({ error: "No image uploaded" });
 
+    const result = await cloudinary.uploadStream(file.buffer, "news_Images");
+
     const newNews = await News.create({
       image: {
-        path: file.path, // Cloudinary secure_url
-        publicId: file.filename, // Cloudinary public_id
+        path: result.secure_url, // Cloudinary secure_url
+        publicId: result.public_id, // Cloudinary public_id
       },
       title,
       description,

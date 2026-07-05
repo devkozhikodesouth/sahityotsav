@@ -7,4 +7,17 @@ cloudinary.config({
   api_secret: process.env.API_SECRET
 });
 
+cloudinary.uploadStream = (fileBuffer, folder) => {
+  return new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      { folder: folder },
+      (error, result) => {
+        if (error) reject(error);
+        else resolve(result);
+      }
+    );
+    stream.end(fileBuffer);
+  });
+};
+
 module.exports = cloudinary;

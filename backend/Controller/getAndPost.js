@@ -16,14 +16,7 @@ const Festival = require("../models/Festival");
 const Participant = require("../models/Participant");
 
 
-const cloudinary = require("cloudinary").v2;
-require("dotenv").config();
-
-cloudinary.config({
-  cloud_name: process.env.CLOUD_NAME,
-  api_key: process.env.API_KEY,
-  api_secret: process.env.API_SECRET,
-});
+const cloudinary = require("../util/cloudinary");
 
 const startProgram = async (req, res) => {
   try {
@@ -236,7 +229,8 @@ const addImage = async (req, res) => {
     const images = ["image1", "image2", "image3"];
     const updatedImages = {};
 
-    images.forEach((imageKey, index) => {
+    for (let index = 0; index < images.length; index++) {
+      const imageKey = images[index];
       const file = req.files?.[imageKey]?.[0];
 
       updatedImages[imageKey] = {
@@ -247,10 +241,11 @@ const addImage = async (req, res) => {
       };
 
       if (file) {
-        updatedImages[imageKey].image = file.path;
-        updatedImages[imageKey].public_id = file.filename;
+        const result = await cloudinary.uploadStream(file.buffer, "template_images");
+        updatedImages[imageKey].image = result.secure_url;
+        updatedImages[imageKey].public_id = result.public_id;
       }
-    });
+    }
 
     let templateMode = req.body.templateMode || "fixed";
     let templateRules = [];
@@ -708,10 +703,14 @@ const updateSettings = async (req, res) => {
 
     if (req.files) {
       if (req.files.bannerImage && req.files.bannerImage[0]) {
-        festival.settings.bannerImage = req.files.bannerImage[0].path;
+        const bannerFile = req.files.bannerImage[0];
+        const result = await cloudinary.uploadStream(bannerFile.buffer, "settings_images");
+        festival.settings.bannerImage = result.secure_url;
       }
       if (req.files.rightImage && req.files.rightImage[0]) {
-        festival.settings.rightImage = req.files.rightImage[0].path;
+        const rightFile = req.files.rightImage[0];
+        const result = await cloudinary.uploadStream(rightFile.buffer, "settings_images");
+        festival.settings.rightImage = result.secure_url;
       }
     }
 
@@ -977,14 +976,16 @@ async function uploadTemplateDynamic(req, res) {
       return res.status(400).json({ success: false, error: "No image uploaded" });
     }
 
+    const result = await cloudinary.uploadStream(file.buffer, "template_images");
+
     let existingImages = await ImageData.findOne({});
     if (!existingImages) {
       existingImages = new ImageData({});
     }
 
     const newTemplate = {
-      image: file.path,
-      public_id: file.filename,
+      image: result.secure_url,
+      public_id: result.public_id,
       color: "text-black",
       positions: { x: 45, y: 140 },
       minResultNumber: 1,
