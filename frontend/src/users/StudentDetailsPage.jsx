@@ -131,7 +131,7 @@ export default function StudentDetailsPage() {
       const textY = Math.round(819 * sy);
       const baseFontSize = Math.round(36 * sx);
       const maxLineWidth = Math.round(1126 * sx); // max width of text area (scaled)
-      const lineHeight = Math.round(baseFontSize * 1.65);
+      const lineHeight = Math.round(baseFontSize * 1.45);
 
       // Measure total width of a line at a given fontSize
       const measureLine = (segments, size) => {
