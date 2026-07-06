@@ -1215,10 +1215,10 @@ export default function HitsDifferent() {
             className="fixed inset-0 z-[100] bg-[#050706] flex flex-col items-center justify-center p-6 border-4 border-double border-[#A97843]/30"
           >
             {/* Vintage Corners */}
-            <div className="absolute top-8 left-8 w-16 h-16 border-t-2 border-l-2 border-[#A97843]/20"></div>
-            <div className="absolute top-8 right-8 w-16 h-16 border-t-2 border-r-2 border-[#A97843]/20"></div>
-            <div className="absolute bottom-8 left-8 w-16 h-16 border-b-2 border-l-2 border-[#A97843]/20"></div>
-            <div className="absolute bottom-8 right-8 w-16 h-16 border-b-2 border-r-2 border-[#A97843]/20"></div>
+            <div className="hidden md:block absolute top-8 left-8 w-16 h-16 border-t-2 border-l-2 border-[#A97843]/20"></div>
+            <div className="hidden md:block absolute top-8 right-8 w-16 h-16 border-t-2 border-r-2 border-[#A97843]/20"></div>
+            <div className="hidden md:block absolute bottom-8 left-8 w-16 h-16 border-b-2 border-l-2 border-[#A97843]/20"></div>
+            <div className="hidden md:block absolute bottom-8 right-8 w-16 h-16 border-b-2 border-r-2 border-[#A97843]/20"></div>
 
             <motion.div
               initial={{ scale: 0.93, opacity: 0 }}

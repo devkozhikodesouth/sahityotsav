@@ -55,8 +55,8 @@ function Gallery() {
     <>
       <div className="min-h-screen bg-background pt-24 pb-32 paper-texture">
         {/* Decorative Ornaments */}
-        <div className="absolute top-6 left-6 w-16 h-16 border-t-2 border-l-2 border-accent/20 pointer-events-none z-10"></div>
-        <div className="absolute top-6 right-6 w-16 h-16 border-t-2 border-r-2 border-accent/20 pointer-events-none z-10"></div>
+        <div className="hidden md:block absolute top-6 left-6 w-16 h-16 border-t-2 border-l-2 border-accent/20 pointer-events-none z-10"></div>
+        <div className="hidden md:block absolute top-6 right-6 w-16 h-16 border-t-2 border-r-2 border-accent/20 pointer-events-none z-10"></div>
 
         <div className="max-w-7xl mx-auto px-4 md:px-8">
           

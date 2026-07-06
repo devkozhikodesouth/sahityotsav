@@ -479,3 +479,19 @@ html {
 #user-sections-container > section:nth-of-type(even) {
   background-color: #FDFBF7 !important;
 }
+
+@keyframes shine-sweep {
+  0% {
+    left: -100%;
+  }
+  50% {
+    left: 150%;
+  }
+  100% {
+    left: 150%;
+  }
+}
+
+.animate-shine {
+  animation: shine-sweep 3s infinite ease-in-out;
+}

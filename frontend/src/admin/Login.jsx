@@ -36,10 +36,10 @@ const Login = () => {
   return (
     <div className="h-screen flex items-center justify-center px-4 bg-background relative overflow-hidden">
       {/* Decorative corners */}
-      <div className="absolute top-4 left-4 w-16 h-16 border-t-2 border-l-2 border-accent/40 pointer-events-none"></div>
-      <div className="absolute top-4 right-4 w-16 h-16 border-t-2 border-r-2 border-accent/40 pointer-events-none"></div>
-      <div className="absolute bottom-4 left-4 w-16 h-16 border-b-2 border-l-2 border-accent/40 pointer-events-none"></div>
-      <div className="absolute bottom-4 right-4 w-16 h-16 border-b-2 border-r-2 border-accent/40 pointer-events-none"></div>
+      <div className="hidden md:block absolute top-4 left-4 w-16 h-16 border-t-2 border-l-2 border-accent/40 pointer-events-none"></div>
+      <div className="hidden md:block absolute top-4 right-4 w-16 h-16 border-t-2 border-r-2 border-accent/40 pointer-events-none"></div>
+      <div className="hidden md:block absolute bottom-4 left-4 w-16 h-16 border-b-2 border-l-2 border-accent/40 pointer-events-none"></div>
+      <div className="hidden md:block absolute bottom-4 right-4 w-16 h-16 border-b-2 border-r-2 border-accent/40 pointer-events-none"></div>
 
       <div className="max-w-md w-full p-8 bg-surface rounded-2xl border-vintage shadow-xl relative z-10">
         <div className="text-center mb-8">

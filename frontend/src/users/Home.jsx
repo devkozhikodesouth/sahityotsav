@@ -9,7 +9,7 @@ import { Link } from "react-router-dom";
    ═══════════════════════════════════════════════════ */
 function CornerOrnaments() {
   return (
-    <>
+    <div className="hidden md:block">
       {/* Top-Left */}
       <div className="absolute top-6 left-6 w-24 h-24 border-t-2 border-l-2 border-accent/40 pointer-events-none z-10">
         <div className="absolute top-1 left-1 w-3 h-3 bg-accent/40 rounded-full"></div>
@@ -34,7 +34,7 @@ function CornerOrnaments() {
         <div className="absolute bottom-2 right-2 w-16 h-px bg-accent/20"></div>
         <div className="absolute bottom-2 right-2 w-px h-16 bg-accent/20"></div>
       </div>
-    </>
+    </div>
   );
 }
 
@@ -165,15 +165,41 @@ export default function Home({ festival, onOpenMenu }) {
             >
               🏆 explore results
             </motion.button>
-        <Link to="/student">
-  <motion.button
-    whileHover={{ scale: 1.02 }}
-    whileTap={{ scale: 0.98 }}
-    className="w-full sm:w-auto bg-white/5 text-white border border-accent/40 hover:bg-white/10 px-8 py-4 rounded-xl font-heading font-semibold tracking-wider uppercase shadow-sm transition-all duration-200 backdrop-blur-sm"
-  >
-    Participant Login
-  </motion.button>
-</Link>
+        <Link to="/student" className="w-full sm:w-auto">
+          <motion.button
+            whileHover={{ scale: 1.08, y: -2 }}
+            whileTap={{ scale: 0.95 }}
+            animate={{ 
+              y: [0, -18, 0, -6, 0, 0],
+              boxShadow: [
+                "0 0 0 0 rgba(197, 160, 89, 0)",
+                "0 0 24px 6px rgba(197, 160, 89, 0.5)",
+                "0 0 0 0 rgba(197, 160, 89, 0)"
+              ]
+            }}
+            transition={{
+              y: {
+                repeat: Infinity,
+                duration: 2.2,
+                times: [0, 0.12, 0.24, 0.32, 0.40, 1],
+                ease: "easeInOut"
+              },
+              boxShadow: {
+                repeat: Infinity,
+                duration: 2.2,
+                times: [0, 0.12, 0.24, 0.32, 0.40, 1],
+                ease: "easeInOut"
+              }
+            }}
+            className="group relative w-full sm:w-auto overflow-hidden bg-primary-dark/80 text-accent border-2 border-accent hover:bg-primary-light hover:text-white px-8 py-4 rounded-xl font-heading font-bold tracking-widest uppercase shadow-2xl transition-all duration-300 backdrop-blur-md flex items-center justify-center gap-3 text-sm"
+          >
+            {/* Shimmer/Shine reflection sweep */}
+            <span className="absolute inset-y-0 w-1/3 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12 animate-shine pointer-events-none" />
+            
+            <span className="w-2.5 h-2.5 rounded-full bg-accent animate-ping"></span>
+            <span>Participant Login</span>
+          </motion.button>
+        </Link>
           </motion.div>
 
         </motion.div>
