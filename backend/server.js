@@ -69,6 +69,10 @@ app.use(express.urlencoded({ extended: true }));
 
 const allowedOrigins = [
   process.env.FRONTEND_URL,
+  process.env.FRONTEND,
+  process.env.FRONDEND,
+  "https://ssfkozhikode.in",
+  "https://www.ssfkozhikode.in",
   "http://localhost:5173",
   "http://localhost:3000",
   "http://127.0.0.1:5173"
@@ -80,14 +84,19 @@ app.use(cors({
     if (!origin) return callback(null, true);
     
     const isAllowed = allowedOrigins.includes(origin) || 
+                      origin === "https://sahityotsav.com" ||
+                      origin === "http://sahityotsav.com" ||
                       origin.endsWith(".sahityotsav.com") || 
+                      origin === "https://ssfkozhikodesouth.in" ||
+                      origin === "http://ssfkozhikodesouth.in" ||
+                      origin.endsWith(".ssfkozhikodesouth.in") || 
                       origin.includes("localhost") || 
                       origin.includes("127.0.0.1");
                       
     if (isAllowed) {
       callback(null, true);
     } else {
-      callback(new Error("Not allowed by CORS"));
+      callback(new Error(`Not allowed by CORS: ${origin}`));
     }
   },
   credentials: true
